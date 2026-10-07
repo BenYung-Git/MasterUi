@@ -1,0 +1,122 @@
+# Robot Ethernet setting: 192.168.2.64, sub mask 255.255.255.0, gate 192.168.2.1
+robot1:
+  ip: 10.5.5.100
+  maker: jaka
+  product: zu5
+  arm: C5100230
+  cab: CAB7213357
+  version_scb: '02_57'
+  version_controller: 1.5.13_32_X86_cab2_1
+  version_servo: R-6.10_3.196
+  payload: 3.0
+  visible: true
+robot2:
+  ip: 10.5.5.100
+  maker: jaka
+  product: zu5
+  arm: CS110323
+  cab: CAB7212243
+  version_scb: '03_11'
+  version_controller: 1.5.13_32_X86_cab2_1
+  payload: 3.0
+  visible: true
+robot3:
+  ip: 10.5.5.100
+  maker: jaka
+  product: zu5
+  arm: C5110316
+  cab: CAB7212229
+  version_scb: '03_11'
+  version_controller: 1.5.13_32_X86_cab2_1
+  payload: 3.0
+  visible: true
+robot4:
+  ip: 10.5.5.100
+  maker: jaka
+  product: zu5
+  arm: C5100223
+  cab: CAB7212495
+  version_scb: '03_11'
+  version_controller: 1.5.13_32_X86_cab2_1
+  version_servo: R-6.10_3.196
+  payload: 3.0
+  visible: true
+robot5:
+  ip: 10.5.5.100
+  maker: jaka
+  product: zu7
+  arm: C5100218
+  cab: CAB7212451
+  version_scb: '03_11'
+  version_controller: 1.5.13_32_X86_cab2_1
+  version_servo: R-6.10_3.196
+  payload: 3.0
+  visible: true
+robot6:
+  ip: 10.5.5.100
+  maker: jaka
+  product: s12
+  arm: A1210000135
+  cab: CAB12213648
+  version_scb: '03_11'
+  version_controller: 1.7.1_36_A04_X64_cab2_1
+  version_servo: 0.0 TIO-0.0_0.0
+  payload: 1.0
+  visible: true
+robot7:
+  ip: 10.5.5.100
+  maker: jaka
+  product: zu7
+  arm: C5100221
+  cab: CAB7212231
+  version_scb: '03_11'
+  version_controller: 1.5.13_32_X86_cab2_1
+  version_servo: R-6.10_3.196
+  payload: 3.0
+  visible: true
+robot11:
+  ip: 192.168.2.160
+  maker: rokae
+  product: xMate CR7-C
+  arm: X600VO0315
+  cab: C600UY0215
+  payload: 3.0
+  visible: true
+robot12:
+  ip: 192.168.2.161
+  maker: rokae
+  product: xMate CR7-C
+  arm: X600UY0019
+  cab: C600UY0210
+  payload: 3.0
+  visible: true
+robot13:
+  ip: 192.168.2.163
+  maker: rokae
+  product: xMate SR5-C
+  arm: X600UY0040
+  cab: C600UY020B
+  payload: 3.0
+  visible: true
+robot14:
+  ip: 192.168.2.99
+  maker: cart
+  visible: true
+robot199:
+  ip: 192.168.1.199
+  maker: jaka
+  product: Test By Ben
+  arm: CS110323
+  cab: ZU7
+  version_scb: '03_11'
+  version_controller: 1.5.13_32_X86_cab2_1
+  payload: 3.0
+  visible: false
+group1:
+  maker: robot_team
+  robots: [robot11, robot12, robot13, robot14]
+  visible: true
+group199:
+  maker: Test By Ben (IT Dept.)
+  robots: [robot199, robot12, robot13, robot14]
+  visible: true
