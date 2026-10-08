@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Master UI</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <h1 data-i18n="form_header">來源資料設定中心</h1>
+      <span class="version" data-i18n="app_version">版本 V1.0</span>
+    </div>
+    <div class="controls">
+      <label><span data-i18n="lang_label">語言</span>
+        <select id="langSelect"></select>
+      </label>
+      <label><span data-i18n="fontsize_label">字級</span>
+        <select id="fontSelect">
+          <option>10</option>
+          <option>11</option>
+          <option selected>12</option>
+          <option>14</option>
+          <option>16</option>
+          <option>18</option>
+          <option>20</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button type="button" class="tab active" data-tab="robot" data-i18n="tab_robot">機械臂設定</button>
+    <button type="button" class="tab" data-tab="tool" data-i18n="tab_tool">工具設定</button>
+  </nav>
+
+  <main>
+    <section id="panel-robot" class="panel active">
+      <div class="split">
+        <div class="card" id="robotCard">
+          <h2 data-i18n="section_robots">單機列表</h2>
+          <select id="robotList" size="5" class="listbox"></select>
+          <div class="btn-row">
+            <button type="button" id="robotNew" data-i18n="btn_new">新增</button>
+            <button type="button" id="robotSave" data-i18n="btn_save">儲存</button>
+            <button type="button" id="robotCopy" data-i18n="btn_copy">複製</button>
+            <button type="button" id="robotCancel" data-i18n="btn_cancel">取消</button>
+          </div>
+          <form id="robotForm" class="form grid-2">
+            <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
+            <label><span data-i18n="field_ip">IP</span><input name="ip" autocomplete="off" /></label>
+            <label><span data-i18n="field_maker">廠牌</span><input name="maker" autocomplete="off" /></label>
+            <label><span data-i18n="field_product">機型</span><input name="product" autocomplete="off" /></label>
+            <label><span data-i18n="field_arm">手臂序號</span><input name="arm" autocomplete="off" /></label>
+            <label><span data-i18n="field_cab">控制櫃序號</span><input name="cab" autocomplete="off" /></label>
+            <label><span data-i18n="field_version_scb">SCB 版本</span><input name="version_scb" autocomplete="off" /></label>
+            <label><span data-i18n="field_version_controller">控制器版本</span><input name="version_controller" autocomplete="off" /></label>
+            <label><span data-i18n="field_version_servo">伺服版本</span><input name="version_servo" autocomplete="off" /></label>
+            <label><span data-i18n="field_payload">負載</span><input name="payload" autocomplete="off" /></label>
+            <div class="visible-row">
+              <span data-i18n="field_visible">可見狀態</span>
+              <strong id="robotVisibleText">啟用</strong>
+              <button type="button" id="robotToggleVisible" class="btn-toggle"></button>
+            </div>
+            <input type="hidden" name="visible" value="true" />
+            <input type="hidden" name="original_id" value="" />
+          </form>
+        </div>
+
+        <div class="card" id="groupCard">
+          <h2 data-i18n="section_groups">群組列表</h2>
+          <select id="groupList" size="5" class="listbox"></select>
+          <div class="btn-row">
+            <button type="button" id="groupNew" data-i18n="btn_new">新增</button>
+            <button type="button" id="groupSave" data-i18n="btn_save">儲存</button>
+            <button type="button" id="groupCopy" data-i18n="btn_copy">複製</button>
+            <button type="button" id="groupCancel" data-i18n="btn_cancel">取消</button>
+          </div>
+          <form id="groupForm" class="form grid-1">
+            <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
+            <label><span data-i18n="field_maker">廠牌</span><input name="maker" autocomplete="off" /></label>
+            <label><span data-i18n="field_robots">成員機器人</span><input name="robots" autocomplete="off" /></label>
+            <p class="hint" data-i18n="hint_group_robots">成員以逗號分隔</p>
+            <div class="visible-row">
+              <span data-i18n="field_visible">可見狀態</span>
+              <strong id="groupVisibleText">啟用</strong>
+              <button type="button" id="groupToggleVisible" class="btn-toggle"></button>
+            </div>
+            <input type="hidden" name="visible" value="true" />
+            <input type="hidden" name="original_id" value="" />
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-tool" class="panel">
+      <p class="placeholder" data-i18n="placeholder_tool">工具設定頁（暫無功能）</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
