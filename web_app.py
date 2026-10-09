@@ -14,16 +14,27 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from robot_setting_store import (
-    copy_entry,
+    copy_entry as copy_robot_entry,
     list_group_ids,
     list_robot_ids,
     load_data,
     next_id,
     save_data,
-    soft_delete,
-    soft_restore,
+    soft_delete as soft_delete_robot,
+    soft_restore as soft_restore_robot,
     upsert_group,
     upsert_robot,
+)
+from tool_setting_store import (
+    copy_entry as copy_tool_entry,
+    list_tool_ids,
+    load_data as load_tool_data,
+    next_id as next_tool_id,
+    save_data as save_tool_data,
+    soft_delete as soft_delete_tool,
+    soft_restore as soft_restore_tool,
+    tool_to_public,
+    upsert_tool,
 )
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -66,6 +77,31 @@ class GroupPayload(BaseModel):
     original_id: str | None = None
     maker: str = "robot_team"
     robots: str = ""
+    visible: bool = True
+
+
+class ToolPayload(BaseModel):
+    id: str = Field(..., min_length=1)
+    original_id: str | None = None
+    description: str = ""
+    note: str = ""
+    vision_id: str = ""
+    gripper_port: str = ""
+    tool_x: Any = ""
+    tool_y: Any = ""
+    tool_z: Any = ""
+    tool_r: Any = ""
+    tool_p: Any = ""
+    tool_yaw: Any = ""
+    vision_x: Any = ""
+    vision_y: Any = ""
+    vision_z: Any = ""
+    vision_r: Any = ""
+    vision_p: Any = ""
+    vision_yaw: Any = ""
+    ref_x: Any = ""
+    ref_y: Any = ""
+    ref_z: Any = ""
     visible: bool = True
 
 
@@ -184,7 +220,7 @@ def api_copy_robot(item_id: str) -> dict:
     data = load_data()
     if item_id not in data:
         raise HTTPException(404, "Not found")
-    new_id = copy_entry(data, item_id)
+    new_id = copy_robot_entry(data, item_id)
     save_data(data)
     data = load_data()
     return {"ok": True, "id": new_id, "item": _item_public(new_id, data[new_id])}
@@ -195,7 +231,7 @@ def api_copy_group(item_id: str) -> dict:
     data = load_data()
     if item_id not in data:
         raise HTTPException(404, "Not found")
-    new_id = copy_entry(data, item_id)
+    new_id = copy_robot_entry(data, item_id)
     save_data(data)
     data = load_data()
     return {"ok": True, "id": new_id, "item": _item_public(new_id, data[new_id])}
@@ -206,7 +242,7 @@ def api_disable_robot(item_id: str) -> dict:
     data = load_data()
     if item_id not in data:
         raise HTTPException(404, "Not found")
-    soft_delete(data, item_id)
+    soft_delete_robot(data, item_id)
     save_data(data)
     data = load_data()
     return {"ok": True, "item": _item_public(item_id, data[item_id])}
@@ -217,7 +253,7 @@ def api_enable_robot(item_id: str) -> dict:
     data = load_data()
     if item_id not in data:
         raise HTTPException(404, "Not found")
-    soft_restore(data, item_id)
+    soft_restore_robot(data, item_id)
     save_data(data)
     data = load_data()
     return {"ok": True, "item": _item_public(item_id, data[item_id])}
@@ -228,7 +264,7 @@ def api_disable_group(item_id: str) -> dict:
     data = load_data()
     if item_id not in data:
         raise HTTPException(404, "Not found")
-    soft_delete(data, item_id)
+    soft_delete_robot(data, item_id)
     save_data(data)
     data = load_data()
     return {"ok": True, "item": _item_public(item_id, data[item_id])}
@@ -239,7 +275,69 @@ def api_enable_group(item_id: str) -> dict:
     data = load_data()
     if item_id not in data:
         raise HTTPException(404, "Not found")
-    soft_restore(data, item_id)
+    soft_restore_robot(data, item_id)
     save_data(data)
     data = load_data()
     return {"ok": True, "item": _item_public(item_id, data[item_id])}
+
+
+@app.get("/api/tools")
+def api_tools() -> dict:
+    data = load_tool_data()
+    ids = list_tool_ids(data, include_hidden=True)
+    items = [tool_to_public(i, data[i]) for i in ids]
+    return {"ids": ids, "items": items, "next_id": next_tool_id(data, "tool")}
+
+
+@app.post("/api/tools")
+def api_save_tool(payload: ToolPayload) -> dict:
+    data = load_tool_data()
+    key = payload.id.strip()
+    if not key:
+        raise HTTPException(400, "ID required")
+    old = (payload.original_id or "").strip() or None
+    if old is None and key in data:
+        raise HTTPException(400, "ID exists")
+    if old and old != key:
+        if key in data:
+            raise HTTPException(400, "ID exists")
+        if old in data:
+            del data[old]
+    fields = payload.model_dump()
+    upsert_tool(data, key, fields)
+    save_tool_data(data)
+    data = load_tool_data()
+    return {"ok": True, "item": tool_to_public(key, data[key])}
+
+
+@app.post("/api/tools/{item_id}/copy")
+def api_copy_tool(item_id: str) -> dict:
+    data = load_tool_data()
+    if item_id not in data or item_id not in list_tool_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    new_id = copy_tool_entry(data, item_id)
+    save_tool_data(data)
+    data = load_tool_data()
+    return {"ok": True, "id": new_id, "item": tool_to_public(new_id, data[new_id])}
+
+
+@app.post("/api/tools/{item_id}/disable")
+def api_disable_tool(item_id: str) -> dict:
+    data = load_tool_data()
+    if item_id not in data or item_id not in list_tool_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    soft_delete_tool(data, item_id)
+    save_tool_data(data)
+    data = load_tool_data()
+    return {"ok": True, "item": tool_to_public(item_id, data[item_id])}
+
+
+@app.post("/api/tools/{item_id}/enable")
+def api_enable_tool(item_id: str) -> dict:
+    data = load_tool_data()
+    if item_id not in data or item_id not in list_tool_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    soft_restore_tool(data, item_id)
+    save_tool_data(data)
+    data = load_tool_data()
+    return {"ok": True, "item": tool_to_public(item_id, data[item_id])}

@@ -1,0 +1,308 @@
+# Tool settings (master copy; source is not modified)
+tool00:
+  description: Dummy Tool
+  visible: true
+tool01:
+  calibration:
+    tool:
+    - -160.03323364257812
+    - -278.256103515625
+    - 200.11643981933594
+    - 92.83741760253905
+    - -1.861421346664429
+    - 154.14541625976562
+    vision:
+    - -160.675
+    - -278.684
+    - 63.966
+    - -67.885
+    - -87.91
+    - -58.845
+  description: Weld pin outward 20mm. With vision.
+  note: Format is [x, y, z, R, P, Y], xyz are in mm, RPY are in degree. If vision_id is not specified, app would not require
+    vision connection.
+  vision_id: vision1
+  visible: true
+tool02:
+  calibration:
+    tool:
+    - -298.3512340001556
+    - -230.7858679331454
+    - 114.13728224012132
+    - 90.14865112304688
+    - 0.1061391532421112
+    - 129.38204956054688
+    tool_ref_point:
+    - 648.1220315964514
+    - 487.47036861545865
+    - 246.16159140014076
+    vision:
+    - -262.939
+    - -147.471
+    - 61.347
+    - -58.006
+    - -88.379
+    - -100.337
+  description: Weld pin outward 20mm. Without vision. 135 degree gun. for h top belly welding.
+  visible: true
+tool03:
+  calibration:
+    tool:
+    - 42.59164810180664
+    - 31.62535858154297
+    - 579.1736450195312
+    - 175.9351043701172
+    - -21.857906341552734
+    - 105.08087158203125
+    vision:
+    - -262.939
+    - -147.471
+    - 61.347
+    - -58.006
+    - -88.379
+    - -100.337
+  description: Weld pin outward 20mm. Without vision.
+  visible: true
+tool04:
+  calibration:
+    tool:
+    - -129.75546264648438
+    - -292.3363342285156
+    - 156.75685119628906
+    - 84.60758972167967
+    - -2.112487316131592
+    - 153.7705535888672
+    tool_ref_point:
+    - 233.54909535942002
+    - -302.9184126770517
+    - -131.03232050247854
+    vision:
+    - -160.675
+    - -278.684
+    - 63.966
+    - -67.885
+    - -87.91
+    - -58.845
+  description: Weld pin outward mouth 18mm (however 15 maybe better). L-shape tool frame. Without vision. For H-top.
+  note: weld pin is horizontal.
+  visible: true
+tool05:
+  calibration:
+    tool:
+    - 238.97518920898438
+    - 150.48849487304688
+    - 225.03875732421875
+    - 91.09427642822267
+    - 0.5657460689544678
+    - -55.16418075561523
+    vision:
+    - -160.675
+    - -278.684
+    - 63.966
+    - -67.885
+    - -87.91
+    - -58.845
+  description: Weld pin outward electricity mouth 15mm. L-shape tool frame. Without vision. For H-top.
+  note: weld pin is horizontal.
+  visible: true
+tool06:
+  calibration:
+    tool:
+    - -16.2889347076416
+    - -159.3709259033203
+    - 529.1021728515625
+    - 133.08059692382812
+    - -5.104230403900147
+    - 153.42503356933594
+    tool_ref_point:
+    - 233.54909535942002
+    - -302.9184126770517
+    - -131.03232050247854
+    vision:
+    - -160.675
+    - -278.684
+    - 63.966
+    - -67.885
+    - -87.91
+    - -58.845
+  description: Weld pin outward mouth 15mm. L-shape tool frame. Without vision. For H-top.
+  note: weld pin is horizontal.
+  visible: true
+tool07:
+  calibration:
+    tool:
+    - 225.95488374977728
+    - 289.2819504711901
+    - 115.7260319301729
+    - 88.03463745117188
+    - 0.14023806154727936
+    - -42.0076904296875
+    vision:
+    - 200.84915161132812
+    - 293.6939392089844
+    - 55.32914733886719
+    - -62.24151229858398
+    - -88.922607421875
+    - 109.9942855834961
+  description: Weld pin outward mouth 15mm. With vision.
+  note: weld pin is horizontal.
+  vision_id: vision2
+  visible: true
+tool08:
+  calibration:
+    tool:
+    - 86.88792051532906
+    - -7.295771323847836
+    - 449.78963309063806
+    - 143.32424808953837
+    - 0.197528091469327
+    - -88.25620862692938
+    vision:
+    - 43.22900972890703
+    - -3.800811524047265
+    - 503.7413853032633
+    - 178.5309392886985
+    - 32.698273338413145
+    - 0.14726476122122165
+  description: Weld pin outward mouth 15mm. With vision.
+  note: weld pin is horizontal.
+  vision_id: vision5
+  visible: true
+tool09:
+  calibration:
+    tool:
+    - 75.90809889267865
+    - -6.41366374127951
+    - 457.3877650366235
+    - 146.83430584121882
+    - 1.093044469708841
+    - -85.73537353650518
+    vision:
+    - 37.26714746852472
+    - -2.5259589333399
+    - 506.4209398613397
+    - 179.25567798820293
+    - 31.846162224253373
+    - 2.194643113966797
+  description: Weld pin outward mouth 15mm. With vision.
+  note: weld pin is horizontal.
+  vision_id: vision6
+  visible: true
+tool10:
+  calibration:
+    tool:
+    - 110.10709381103516
+    - 103.43598937988281
+    - 192.95294189453125
+    - 90.07394409179688
+    - 1.6546906232833862
+    - -48.21846389770507
+    vision:
+    - -160.675
+    - -278.684
+    - 63.966
+    - -67.885
+    - -87.91
+    - -58.845
+  description: L-shape, for ring butt welding (work71)
+  visible: true
+tool11:
+  calibration:
+    tool:
+    - 42.84548621598208
+    - -52.706307255254494
+    - 406.8503018684339
+    - -155.307
+    - 5.669
+    - 40.698
+    vision:
+    - 83.222
+    - -20.45
+    - 412.82
+    - 175.97
+    - 23.731
+    - -49.785
+  description: For circle-corner suqare ring.
+  vision_id: vision2
+  visible: true
+tool12:
+  calibration:
+    tool:
+    - -84.39745330810547
+    - -312.68927001953125
+    - 166.4427032470703
+    - 87.25337982177734
+    - -3.2950854301452637
+    - 165.0701751708984
+    vision:
+    - -160.675
+    - -278.684
+    - 63.966
+    - -67.885
+    - -87.91
+    - -58.845
+  description: Undefined
+  visible: true
+tool13:
+  calibration:
+    tool:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    vision:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+  description: For fetcher robot with a gripper.
+  gripper:
+    port: COM3
+  visible: true
+tool14:
+  calibration:
+    tool:
+    - -84.39745330810547
+    - -312.68927001953125
+    - 166.4427032470703
+    - 87.25337982177734
+    - -3.2950854301452637
+    - 165.0701751708984
+    vision:
+    - -160.675
+    - -278.684
+    - 63.966
+    - -67.885
+    - -87.91
+    - -58.845
+  description: Undefined
+  visible: true
+tool15:
+  calibration:
+    tool:
+    - -84.39745330810547
+    - -312.68927001953125
+    - 166.4427032470703
+    - 87.25337982177734
+    - -3.2950854301452637
+    - 165.0701751708984
+    vision:
+    - -160.675
+    - -278.684
+    - 63.966
+    - -67.885
+    - -87.91
+    - -58.845
+  description: Undefined
+  visible: true
+tool_group1:
+  tools:
+  - tool08
+  - tool09
+  - tool13
+  - tool00
+  visible: true

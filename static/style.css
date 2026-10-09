@@ -159,6 +159,35 @@ button:hover { background: var(--accent-soft); }
   grid-template-columns: 1fr;
 }
 
+.form .span-2 {
+  grid-column: 1 / -1;
+}
+
+.form-subtitle {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+#panel-tool .split {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+}
+
+.pose-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 1fr 1fr;
+  gap: 8px 10px;
+  align-items: end;
+}
+
+.pose-tag {
+  color: var(--muted);
+  font-weight: 650;
+  padding-bottom: 8px;
+}
+
 .form label {
   display: grid;
   gap: 4px;

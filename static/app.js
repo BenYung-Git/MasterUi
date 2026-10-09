@@ -4,12 +4,16 @@
     lang: "zh-TW",
     robots: { ids: [], items: [], next_id: "robot1" },
     groups: { ids: [], items: [], next_id: "group1" },
+    tools: { ids: [], items: [], next_id: "tool1" },
     robotOriginalId: "",
     groupOriginalId: "",
+    toolOriginalId: "",
     robotBeforeNew: null,
     groupBeforeNew: null,
+    toolBeforeNew: null,
     robotIsNew: false,
     groupIsNew: false,
+    toolIsNew: false,
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -49,6 +53,7 @@
     renderLists();
     syncVisibleButtons("robot");
     syncVisibleButtons("group");
+    syncVisibleButtons("tool");
   }
 
   function fillLangSelect() {
@@ -93,6 +98,7 @@
   function renderLists() {
     renderList($("#robotList"), state.robots);
     renderList($("#groupList"), state.groups);
+    renderList($("#toolList"), state.tools);
   }
 
   function findItem(pack, id) {
@@ -135,37 +141,100 @@
     syncVisibleButtons("group");
   }
 
+  const TOOL_FIELDS = [
+    "id",
+    "description",
+    "note",
+    "vision_id",
+    "gripper_port",
+    "tool_x",
+    "tool_y",
+    "tool_z",
+    "tool_r",
+    "tool_p",
+    "tool_yaw",
+    "vision_x",
+    "vision_y",
+    "vision_z",
+    "vision_r",
+    "vision_p",
+    "vision_yaw",
+    "ref_x",
+    "ref_y",
+    "ref_z",
+  ];
+
+  function fillToolForm(item) {
+    const form = $("#toolForm");
+    TOOL_FIELDS.forEach((f) => {
+      const val = item?.[f];
+      form.elements[f].value = val === undefined || val === null ? "" : String(val);
+    });
+    form.elements.original_id.value = item?.id ?? "";
+    form.elements.visible.value = item ? String(!!item.visible) : "true";
+    state.toolOriginalId = item?.id ?? "";
+    state.toolIsNew = false;
+    syncVisibleButtons("tool");
+  }
+
   function syncVisibleButtons(kind) {
-    const form = $(kind === "robot" ? "#robotForm" : "#groupForm");
-    const textEl = $(kind === "robot" ? "#robotVisibleText" : "#groupVisibleText");
-    const btn = $(kind === "robot" ? "#robotToggleVisible" : "#groupToggleVisible");
+    const map = {
+      robot: { form: "#robotForm", text: "#robotVisibleText", btn: "#robotToggleVisible" },
+      group: { form: "#groupForm", text: "#groupVisibleText", btn: "#groupToggleVisible" },
+      tool: { form: "#toolForm", text: "#toolVisibleText", btn: "#toolToggleVisible" },
+    };
+    const cfg = map[kind];
+    const form = $(cfg.form);
+    const textEl = $(cfg.text);
+    const btn = $(cfg.btn);
     const visible = form.elements.visible.value === "true";
     textEl.textContent = visibleLabel(visible);
     btn.textContent = visible ? t("btn_disable") : t("btn_enable");
     btn.dataset.mode = visible ? "disable" : "enable";
   }
 
-  async function reloadAll(selectRobotId, selectGroupId) {
-    const [robots, groups] = await Promise.all([
+  async function reloadAll(selectRobotId, selectGroupId, selectToolId) {
+    const settled = await Promise.allSettled([
       api("/api/robots"),
       api("/api/groups"),
+      api("/api/tools"),
     ]);
-    state.robots = robots;
-    state.groups = groups;
+    const errors = [];
+    if (settled[0].status === "fulfilled") state.robots = settled[0].value;
+    else errors.push(settled[0].reason);
+    if (settled[1].status === "fulfilled") state.groups = settled[1].value;
+    else errors.push(settled[1].reason);
+    if (settled[2].status === "fulfilled") state.tools = settled[2].value;
+    else errors.push(settled[2].reason);
+
     renderLists();
 
+    const robots = state.robots;
+    const groups = state.groups;
+    const tools = state.tools;
     const rList = $("#robotList");
     const gList = $("#groupList");
+    const tList = $("#toolList");
     if (selectRobotId && robots.ids.includes(selectRobotId)) {
       rList.value = selectRobotId;
     }
     if (selectGroupId && groups.ids.includes(selectGroupId)) {
       gList.value = selectGroupId;
     }
+    if (selectToolId && tools.ids.includes(selectToolId)) {
+      tList.value = selectToolId;
+    }
     if (rList.value) fillRobotForm(findItem(robots, rList.value));
     else fillRobotForm(null);
     if (gList.value) fillGroupForm(findItem(groups, gList.value));
     else fillGroupForm(null);
+    if (tList && tList.value) fillToolForm(findItem(tools, tList.value));
+    else if (tList) fillToolForm(null);
+
+    if (errors.length) {
+      const err = errors[0];
+      toast(String(err.message || err), true);
+    }
   }
 
   function bindTabs() {
@@ -209,6 +278,19 @@
     };
   }
 
+  function formToToolPayload(form) {
+    const payload = {
+      id: form.elements.id.value.trim(),
+      original_id: form.elements.original_id.value || null,
+      visible: form.elements.visible.value === "true",
+    };
+    TOOL_FIELDS.forEach((f) => {
+      if (f === "id") return;
+      payload[f] = form.elements[f].value;
+    });
+    return payload;
+  }
+
   function bindRobotActions() {
     $("#robotList").addEventListener("change", () => {
       const item = findItem(state.robots, $("#robotList").value);
@@ -233,7 +315,7 @@
         : state.robotOriginalId || state.robots.ids[0];
       state.robotIsNew = false;
       state.robotBeforeNew = null;
-      await reloadAll(target, $("#groupList").value || null);
+      await reloadAll(target, $("#groupList").value || null, $("#toolList").value || null);
     });
 
     $("#robotSave").addEventListener("click", async () => {
@@ -245,7 +327,7 @@
           body: JSON.stringify(payload),
         });
         state.robotIsNew = false;
-        await reloadAll(res.item.id, $("#groupList").value || null);
+        await reloadAll(res.item.id, $("#groupList").value || null, $("#toolList").value || null);
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -259,7 +341,7 @@
         const res = await api(`/api/robots/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll(res.id, $("#groupList").value || null);
+        await reloadAll(res.id, $("#groupList").value || null, $("#toolList").value || null);
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -278,7 +360,7 @@
         const res = await api(`/api/robots/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
-        await reloadAll(res.item.id, $("#groupList").value || null);
+        await reloadAll(res.item.id, $("#groupList").value || null, $("#toolList").value || null);
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -312,7 +394,7 @@
         : state.groupOriginalId || state.groups.ids[0];
       state.groupIsNew = false;
       state.groupBeforeNew = null;
-      await reloadAll($("#robotList").value || null, target);
+      await reloadAll($("#robotList").value || null, target, $("#toolList").value || null);
     });
 
     $("#groupSave").addEventListener("click", async () => {
@@ -331,7 +413,7 @@
           body: JSON.stringify(payload),
         });
         state.groupIsNew = false;
-        await reloadAll($("#robotList").value || null, res.item.id);
+        await reloadAll($("#robotList").value || null, res.item.id, $("#toolList").value || null);
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -345,7 +427,7 @@
         const res = await api(`/api/groups/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll($("#robotList").value || null, res.id);
+        await reloadAll($("#robotList").value || null, res.id, $("#toolList").value || null);
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -364,7 +446,100 @@
         const res = await api(`/api/groups/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
-        await reloadAll($("#robotList").value || null, res.item.id);
+        await reloadAll($("#robotList").value || null, res.item.id, $("#toolList").value || null);
+        toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
+      } catch (err) {
+        toast(String(err.message || err), true);
+      }
+    });
+  }
+
+  function bindToolActions() {
+    $("#toolList").addEventListener("change", () => {
+      const item = findItem(state.tools, $("#toolList").value);
+      fillToolForm(item);
+    });
+
+    $("#toolNew").addEventListener("click", () => {
+      state.toolBeforeNew = state.toolOriginalId || state.tools.ids[0] || null;
+      state.toolIsNew = true;
+      $("#toolList").selectedIndex = -1;
+      fillToolForm({
+        id: state.tools.next_id,
+        visible: true,
+      });
+      state.toolIsNew = true;
+      $("#toolForm").elements.original_id.value = "";
+    });
+
+    $("#toolCancel").addEventListener("click", async () => {
+      const target = state.toolIsNew
+        ? state.toolBeforeNew
+        : state.toolOriginalId || state.tools.ids[0];
+      state.toolIsNew = false;
+      state.toolBeforeNew = null;
+      await reloadAll(
+        $("#robotList").value || null,
+        $("#groupList").value || null,
+        target
+      );
+    });
+
+    $("#toolSave").addEventListener("click", async () => {
+      try {
+        const payload = formToToolPayload($("#toolForm"));
+        if (!payload.id) throw new Error(t("msg_id_required"));
+        const res = await api("/api/tools", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        state.toolIsNew = false;
+        await reloadAll(
+          $("#robotList").value || null,
+          $("#groupList").value || null,
+          res.item.id
+        );
+        toast(t("msg_saved"));
+      } catch (err) {
+        toast(String(err.message || err), true);
+      }
+    });
+
+    $("#toolCopy").addEventListener("click", async () => {
+      const id = state.toolOriginalId || $("#toolList").value;
+      if (!id) return toast(t("msg_select_first"), true);
+      try {
+        const res = await api(`/api/tools/${encodeURIComponent(id)}/copy`, {
+          method: "POST",
+        });
+        await reloadAll(
+          $("#robotList").value || null,
+          $("#groupList").value || null,
+          res.id
+        );
+        toast(t("msg_copied").replace("{id}", res.id));
+      } catch (err) {
+        toast(String(err.message || err), true);
+      }
+    });
+
+    $("#toolToggleVisible").addEventListener("click", async () => {
+      const id = state.toolOriginalId || $("#toolList").value;
+      if (!id || state.toolIsNew) return toast(t("msg_select_first"), true);
+      const mode = $("#toolToggleVisible").dataset.mode;
+      if (mode === "disable") {
+        if (!confirm(t("msg_confirm_soft_delete").replace("{id}", id))) return;
+      }
+      try {
+        const path = mode === "disable" ? "disable" : "enable";
+        const res = await api(`/api/tools/${encodeURIComponent(id)}/${path}`, {
+          method: "POST",
+        });
+        await reloadAll(
+          $("#robotList").value || null,
+          $("#groupList").value || null,
+          res.item.id
+        );
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -385,7 +560,8 @@
     bindChrome();
     bindRobotActions();
     bindGroupActions();
-    await reloadAll(null, null);
+    bindToolActions();
+    await reloadAll(null, null, null);
   }
 
   boot().catch((err) => toast(String(err.message || err), true));

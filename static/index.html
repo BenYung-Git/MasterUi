@@ -95,7 +95,65 @@
     </section>
 
     <section id="panel-tool" class="panel">
-      <p class="placeholder" data-i18n="placeholder_tool">工具設定頁（暫無功能）</p>
+      <div class="split">
+        <div class="card" id="toolCard">
+          <h2 data-i18n="section_tools">工具列表</h2>
+          <select id="toolList" size="5" class="listbox"></select>
+          <div class="btn-row">
+            <button type="button" id="toolNew" data-i18n="btn_new">新增</button>
+            <button type="button" id="toolSave" data-i18n="btn_save">儲存</button>
+            <button type="button" id="toolCopy" data-i18n="btn_copy">複製</button>
+            <button type="button" id="toolCancel" data-i18n="btn_cancel">取消</button>
+          </div>
+          <form id="toolForm" class="form grid-2">
+            <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
+            <label><span data-i18n="field_vision_id">Vision ID</span><input name="vision_id" autocomplete="off" /></label>
+            <label class="span-2"><span data-i18n="field_description">描述</span><input name="description" autocomplete="off" /></label>
+            <label class="span-2"><span data-i18n="field_note">備註</span><input name="note" autocomplete="off" /></label>
+            <label><span data-i18n="field_gripper_port">夾爪 Port</span><input name="gripper_port" autocomplete="off" /></label>
+            <div class="span-2 form-subtitle" data-i18n="field_cal_tool">calibration.tool</div>
+            <div class="span-2 pose-row">
+              <span class="pose-tag">xyz</span>
+              <label><span>x</span><input name="tool_x" autocomplete="off" /></label>
+              <label><span>y</span><input name="tool_y" autocomplete="off" /></label>
+              <label><span>z</span><input name="tool_z" autocomplete="off" /></label>
+            </div>
+            <div class="span-2 pose-row">
+              <span class="pose-tag">RPY</span>
+              <label><span>R</span><input name="tool_r" autocomplete="off" /></label>
+              <label><span>P</span><input name="tool_p" autocomplete="off" /></label>
+              <label><span>Y</span><input name="tool_yaw" autocomplete="off" /></label>
+            </div>
+            <div class="span-2 form-subtitle" data-i18n="field_cal_vision">calibration.vision</div>
+            <div class="span-2 pose-row">
+              <span class="pose-tag">xyz</span>
+              <label><span>x</span><input name="vision_x" autocomplete="off" /></label>
+              <label><span>y</span><input name="vision_y" autocomplete="off" /></label>
+              <label><span>z</span><input name="vision_z" autocomplete="off" /></label>
+            </div>
+            <div class="span-2 pose-row">
+              <span class="pose-tag">RPY</span>
+              <label><span>R</span><input name="vision_r" autocomplete="off" /></label>
+              <label><span>P</span><input name="vision_p" autocomplete="off" /></label>
+              <label><span>Y</span><input name="vision_yaw" autocomplete="off" /></label>
+            </div>
+            <div class="span-2 form-subtitle" data-i18n="field_cal_ref">calibration.tool_ref_point</div>
+            <div class="span-2 pose-row">
+              <span class="pose-tag">xyz</span>
+              <label><span>x</span><input name="ref_x" autocomplete="off" /></label>
+              <label><span>y</span><input name="ref_y" autocomplete="off" /></label>
+              <label><span>z</span><input name="ref_z" autocomplete="off" /></label>
+            </div>
+            <div class="visible-row span-2">
+              <span data-i18n="field_visible">可見狀態</span>
+              <strong id="toolVisibleText">啟用</strong>
+              <button type="button" id="toolToggleVisible" class="btn-toggle"></button>
+            </div>
+            <input type="hidden" name="visible" value="true" />
+            <input type="hidden" name="original_id" value="" />
+          </form>
+        </div>
+      </div>
     </section>
   </main>
 
