@@ -53,7 +53,7 @@ ROBOT_FIELDS = (
     "payload",
 )
 
-app = FastAPI(title="Master UI", version="1.0")
+app = FastAPI(title="Master UI", version="1.1")
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 

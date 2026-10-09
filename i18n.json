@@ -2,7 +2,7 @@
   "zh-TW": {
     "app_title": "來源資料設定中心",
     "form_header": "來源資料設定中心",
-    "app_version": "版本 V1.0",
+    "app_version": "版本 V1.1",
     "tab_robot": "機械臂設定",
     "tab_tool": "工具設定",
     "lang_label": "語言",
@@ -69,7 +69,7 @@
   "en": {
     "app_title": "Source Data Settings Center",
     "form_header": "Source Data Settings Center",
-    "app_version": "Version V1.0",
+    "app_version": "Version V1.1",
     "tab_robot": "Robot Settings",
     "tab_tool": "Tool Settings",
     "lang_label": "Language",
@@ -136,7 +136,7 @@
   "zh-CN": {
     "app_title": "来源资料设定中心",
     "form_header": "来源资料设定中心",
-    "app_version": "版本 V1.0",
+    "app_version": "版本 V1.1",
     "tab_robot": "机械臂设定",
     "tab_tool": "工具设定",
     "lang_label": "语言",
