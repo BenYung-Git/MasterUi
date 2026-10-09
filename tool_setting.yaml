@@ -299,6 +299,32 @@ tool15:
     - -58.845
   description: Undefined
   visible: true
+tool16:
+  description: Test By Ben (IT Dept.)
+  note: 測試項目
+  vision_id: VID
+  gripper:
+    port: 未詳
+  calibration:
+    tool:
+    - 123.1
+    - 123.2
+    - 123.3
+    - 11.1
+    - 11.2
+    - 11.3
+    tool_ref_point:
+    - 323.1
+    - 323.2
+    - 323.3
+    vision:
+    - 223.1
+    - 223.2
+    - 223.3
+    - 21.1
+    - 21.2
+    - 21.3
+  visible: true
 tool_group1:
   tools:
   - tool08

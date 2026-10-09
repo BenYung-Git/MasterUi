@@ -160,18 +160,18 @@ def copy_entry(data: dict[str, Any], key: str) -> str:
 
 
 def _parse_number_list(values: list[Any]) -> list[float | int] | None:
-    """Return list of numbers if every non-empty slot parses; empty list -> None."""
+    """Return list of numbers if complete; None if all empty; raise if invalid."""
     if not values or all(str(v).strip() == "" for v in values):
         return None
     out: list[float | int] = []
     for v in values:
         text = str(v).strip()
         if text == "":
-            return None
+            raise ValueError("xyz / RPY require complete numeric values")
         try:
             num: float | int = float(text) if "." in text else int(text)
-        except ValueError:
-            return None
+        except ValueError as exc:
+            raise ValueError("xyz / RPY accept numbers only") from exc
         out.append(num)
     return out
 

@@ -85,13 +85,130 @@
     pack.items.forEach((item) => {
       const opt = document.createElement("option");
       opt.value = item.id;
-      opt.textContent = `${item.id}  [${visibleLabel(!!item.visible)}]`;
+      const on = !!item.visible;
+      opt.textContent = on
+        ? `${item.id}  [${visibleLabel(true)}]`
+        : `⊘ ${item.id}  [${visibleLabel(false)}]`;
+      if (!on) opt.classList.add("is-disabled-item");
       selectEl.appendChild(opt);
     });
     if (selected && pack.ids.includes(selected)) {
       selectEl.value = selected;
     } else if (pack.ids.length) {
       selectEl.selectedIndex = 0;
+    }
+  }
+
+  const POSE_FIELDS = [
+    "tool_x", "tool_y", "tool_z", "tool_r", "tool_p", "tool_yaw",
+    "vision_x", "vision_y", "vision_z", "vision_r", "vision_p", "vision_yaw",
+    "ref_x", "ref_y", "ref_z",
+  ];
+
+  const NUM_PARTIAL_RE = /^-?\d*\.?\d*$/;
+  const NUM_FULL_RE = /^-?(?:\d+\.?\d*|\.\d+)$/;
+
+  function sanitizeNumberInput(value) {
+    let s = String(value ?? "").replace(/[^\d.\-]/g, "");
+    const neg = s.startsWith("-");
+    s = s.replace(/-/g, "");
+    const parts = s.split(".");
+    s = parts.shift() || "";
+    if (parts.length) s += "." + parts.join("").replace(/\./g, "");
+    if (neg) s = "-" + s;
+    return s;
+  }
+
+  function validatePoseNumbers(form) {
+    for (const name of POSE_FIELDS) {
+      const el = form.elements[name];
+      if (!el) continue;
+      const s = String(el.value ?? "").trim();
+      if (s === "") continue;
+      if (!NUM_FULL_RE.test(s) || !Number.isFinite(Number(s))) {
+        throw new Error(t("msg_number_only"));
+      }
+    }
+  }
+
+  function bindNumericInputs() {
+    document.querySelectorAll(".num-input").forEach((el) => {
+      el.addEventListener("beforeinput", (e) => {
+        if (e.inputType && e.inputType.startsWith("delete")) return;
+        const data = e.data;
+        if (data == null) return;
+        const next =
+          el.value.slice(0, el.selectionStart ?? el.value.length) +
+          data +
+          el.value.slice(el.selectionEnd ?? el.value.length);
+        if (!NUM_PARTIAL_RE.test(next)) e.preventDefault();
+      });
+      el.addEventListener("input", () => {
+        const cleaned = sanitizeNumberInput(el.value);
+        if (el.value !== cleaned) el.value = cleaned;
+      });
+      el.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text");
+        const cleaned = sanitizeNumberInput(text);
+        const start = el.selectionStart ?? el.value.length;
+        const end = el.selectionEnd ?? el.value.length;
+        const next = sanitizeNumberInput(
+          el.value.slice(0, start) + cleaned + el.value.slice(end)
+        );
+        el.value = next;
+      });
+    });
+  }
+
+  function syncEditableState(kind) {
+    const map = {
+      robot: {
+        form: "#robotForm",
+        card: "#robotCard",
+        banner: "#robotDisabledBanner",
+        save: "#robotSave",
+        copy: "#robotCopy",
+        isNew: () => state.robotIsNew,
+      },
+      group: {
+        form: "#groupForm",
+        card: "#groupCard",
+        banner: "#groupDisabledBanner",
+        save: "#groupSave",
+        copy: "#groupCopy",
+        isNew: () => state.groupIsNew,
+      },
+      tool: {
+        form: "#toolForm",
+        card: "#toolCard",
+        banner: "#toolDisabledBanner",
+        save: "#toolSave",
+        copy: "#toolCopy",
+        isNew: () => state.toolIsNew,
+      },
+    };
+    const cfg = map[kind];
+    const form = $(cfg.form);
+    const visible = form.elements.visible.value === "true";
+    const locked = !visible && !cfg.isNew();
+    $(cfg.card).classList.toggle("is-disabled", locked);
+    $(cfg.banner).classList.toggle("hidden", !locked);
+    Array.from(form.elements).forEach((el) => {
+      if (el.type === "hidden") return;
+      if (el.id && /ToggleVisible$/.test(el.id)) return;
+      el.disabled = locked;
+    });
+    $(cfg.save).disabled = locked;
+    $(cfg.copy).disabled = locked;
+  }
+
+  function assertEditable(kind) {
+    const form = $(
+      kind === "robot" ? "#robotForm" : kind === "group" ? "#groupForm" : "#toolForm"
+    );
+    if (form.elements.visible.value !== "true") {
+      throw new Error(t("msg_disabled_locked"));
     }
   }
 
@@ -189,8 +306,12 @@
     const btn = $(cfg.btn);
     const visible = form.elements.visible.value === "true";
     textEl.textContent = visibleLabel(visible);
+    textEl.classList.toggle("status-disabled", !visible);
+    textEl.classList.toggle("status-enabled", visible);
     btn.textContent = visible ? t("btn_disable") : t("btn_enable");
     btn.dataset.mode = visible ? "disable" : "enable";
+    btn.disabled = false;
+    syncEditableState(kind);
   }
 
   async function reloadAll(selectRobotId, selectGroupId, selectToolId) {
@@ -320,6 +441,7 @@
 
     $("#robotSave").addEventListener("click", async () => {
       try {
+        assertEditable("robot");
         const payload = formToRobotPayload($("#robotForm"));
         if (!payload.id) throw new Error(t("msg_id_required"));
         const res = await api("/api/robots", {
@@ -338,6 +460,7 @@
       const id = state.robotOriginalId || $("#robotList").value;
       if (!id) return toast(t("msg_select_first"), true);
       try {
+        assertEditable("robot");
         const res = await api(`/api/robots/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
@@ -399,6 +522,7 @@
 
     $("#groupSave").addEventListener("click", async () => {
       try {
+        assertEditable("group");
         const form = $("#groupForm");
         const payload = {
           id: form.elements.id.value.trim(),
@@ -424,6 +548,7 @@
       const id = state.groupOriginalId || $("#groupList").value;
       if (!id) return toast(t("msg_select_first"), true);
       try {
+        assertEditable("group");
         const res = await api(`/api/groups/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
@@ -487,7 +612,10 @@
 
     $("#toolSave").addEventListener("click", async () => {
       try {
-        const payload = formToToolPayload($("#toolForm"));
+        assertEditable("tool");
+        const form = $("#toolForm");
+        validatePoseNumbers(form);
+        const payload = formToToolPayload(form);
         if (!payload.id) throw new Error(t("msg_id_required"));
         const res = await api("/api/tools", {
           method: "POST",
@@ -509,6 +637,7 @@
       const id = state.toolOriginalId || $("#toolList").value;
       if (!id) return toast(t("msg_select_first"), true);
       try {
+        assertEditable("tool");
         const res = await api(`/api/tools/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
@@ -558,6 +687,7 @@
     applyI18n();
     bindTabs();
     bindChrome();
+    bindNumericInputs();
     bindRobotActions();
     bindGroupActions();
     bindToolActions();

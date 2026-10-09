@@ -122,6 +122,14 @@ def _item_public(key: str, item: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def _ensure_editable(data: dict[str, Any], item_id: str | None) -> None:
+    if not item_id:
+        return
+    item = data.get(item_id)
+    if isinstance(item, dict) and not bool(item.get("visible", True)):
+        raise HTTPException(400, "Disabled item cannot be modified")
+
+
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
@@ -155,6 +163,7 @@ def api_save_robot(payload: RobotPayload) -> dict:
     if not key:
         raise HTTPException(400, "ID required")
     old = (payload.original_id or "").strip() or None
+    _ensure_editable(data, old or (key if key in data else None))
     if old is None and key in data:
         raise HTTPException(400, "ID exists")
     if old and old != key:
@@ -194,6 +203,7 @@ def api_save_group(payload: GroupPayload) -> dict:
     if not key:
         raise HTTPException(400, "ID required")
     old = (payload.original_id or "").strip() or None
+    _ensure_editable(data, old or (key if key in data else None))
     if old is None and key in data:
         raise HTTPException(400, "ID exists")
     if old and old != key:
@@ -220,6 +230,7 @@ def api_copy_robot(item_id: str) -> dict:
     data = load_data()
     if item_id not in data:
         raise HTTPException(404, "Not found")
+    _ensure_editable(data, item_id)
     new_id = copy_robot_entry(data, item_id)
     save_data(data)
     data = load_data()
@@ -231,6 +242,7 @@ def api_copy_group(item_id: str) -> dict:
     data = load_data()
     if item_id not in data:
         raise HTTPException(404, "Not found")
+    _ensure_editable(data, item_id)
     new_id = copy_robot_entry(data, item_id)
     save_data(data)
     data = load_data()
@@ -296,6 +308,7 @@ def api_save_tool(payload: ToolPayload) -> dict:
     if not key:
         raise HTTPException(400, "ID required")
     old = (payload.original_id or "").strip() or None
+    _ensure_editable(data, old or (key if key in data else None))
     if old is None and key in data:
         raise HTTPException(400, "ID exists")
     if old and old != key:
@@ -304,7 +317,10 @@ def api_save_tool(payload: ToolPayload) -> dict:
         if old in data:
             del data[old]
     fields = payload.model_dump()
-    upsert_tool(data, key, fields)
+    try:
+        upsert_tool(data, key, fields)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
     save_tool_data(data)
     data = load_tool_data()
     return {"ok": True, "item": tool_to_public(key, data[key])}
@@ -315,6 +331,7 @@ def api_copy_tool(item_id: str) -> dict:
     data = load_tool_data()
     if item_id not in data or item_id not in list_tool_ids(data, include_hidden=True):
         raise HTTPException(404, "Not found")
+    _ensure_editable(data, item_id)
     new_id = copy_tool_entry(data, item_id)
     save_tool_data(data)
     data = load_tool_data()

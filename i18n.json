@@ -54,7 +54,9 @@
     "msg_select_first": "請先選擇一筆資料。",
     "msg_id_required": "ID 不可空白。",
     "msg_id_exists": "此 ID 已存在。",
-    "msg_confirm_soft_delete": "確定要將 {id} 設為失效嗎？\n（僅標記 visible=false，不會從檔案移除）"
+    "msg_confirm_soft_delete": "確定要將 {id} 設為失效嗎？\n（僅標記 visible=false，不會從檔案移除）",
+    "msg_disabled_locked": "此筆已失效，無法修改（請先啟用）。",
+    "msg_number_only": "xyz / RPY 只能輸入數字。"
   },
   "en": {
     "app_title": "Source Data Settings Center",
@@ -111,7 +113,9 @@
     "msg_select_first": "Please select an item first.",
     "msg_id_required": "ID is required.",
     "msg_id_exists": "This ID already exists.",
-    "msg_confirm_soft_delete": "Set {id} to Disabled?\n(Only sets visible=false; record stays in file)"
+    "msg_confirm_soft_delete": "Set {id} to Disabled?\n(Only sets visible=false; record stays in file)",
+    "msg_disabled_locked": "This item is disabled and cannot be edited (enable it first).",
+    "msg_number_only": "xyz / RPY accept numbers only."
   },
   "zh-CN": {
     "app_title": "来源资料设定中心",
@@ -168,6 +172,8 @@
     "msg_select_first": "请先选择一条数据。",
     "msg_id_required": "ID 不可为空。",
     "msg_id_exists": "此 ID 已存在。",
-    "msg_confirm_soft_delete": "确定要将 {id} 设为失效吗？\n（仅标记 visible=false，不会从文件移除）"
+    "msg_confirm_soft_delete": "确定要将 {id} 设为失效吗？\n（仅标记 visible=false，不会从文件移除）",
+    "msg_disabled_locked": "此笔已失效，无法修改（请先启用）。",
+    "msg_number_only": "xyz / RPY 只能输入数字。"
   }
 }

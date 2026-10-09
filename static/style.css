@@ -118,6 +118,51 @@ main {
   box-shadow: 0 8px 24px rgba(26, 35, 48, 0.05);
 }
 
+.card.is-disabled {
+  background: #f3f4f6;
+  border-color: #b7bcc4;
+  box-shadow: none;
+  opacity: 0.96;
+}
+
+.card.is-disabled .form input:disabled {
+  background: #e8eaee;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.disabled-banner {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #f3d6d6;
+  border: 1px solid #c98a8a;
+  color: #7a2e2e;
+  font-weight: 650;
+}
+
+.disabled-banner.hidden {
+  display: none;
+}
+
+.listbox option.is-disabled-item {
+  color: #8a4a4a;
+  background: #f5e8e8;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background: #f7fafc;
+}
+
+.num-input {
+  font-variant-numeric: tabular-nums;
+}
+
 .card h2 {
   margin: 0 0 10px;
   font-size: calc(var(--font) + 2px);
@@ -213,6 +258,14 @@ button:hover { background: var(--accent-soft); }
   background: var(--accent);
   color: #fff;
   border-color: var(--accent);
+}
+
+.status-enabled {
+  color: #1f6b8a;
+}
+
+.status-disabled {
+  color: #a33b3b;
 }
 
 .hint {

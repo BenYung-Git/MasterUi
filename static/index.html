@@ -47,6 +47,7 @@
             <button type="button" id="robotCopy" data-i18n="btn_copy">複製</button>
             <button type="button" id="robotCancel" data-i18n="btn_cancel">取消</button>
           </div>
+          <p id="robotDisabledBanner" class="disabled-banner hidden" data-i18n="msg_disabled_locked">此筆已失效，無法修改（請先啟用）。</p>
           <form id="robotForm" class="form grid-2">
             <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
             <label><span data-i18n="field_ip">IP</span><input name="ip" autocomplete="off" /></label>
@@ -77,6 +78,7 @@
             <button type="button" id="groupCopy" data-i18n="btn_copy">複製</button>
             <button type="button" id="groupCancel" data-i18n="btn_cancel">取消</button>
           </div>
+          <p id="groupDisabledBanner" class="disabled-banner hidden" data-i18n="msg_disabled_locked">此筆已失效，無法修改（請先啟用）。</p>
           <form id="groupForm" class="form grid-1">
             <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
             <label><span data-i18n="field_maker">廠牌</span><input name="maker" autocomplete="off" /></label>
@@ -105,6 +107,7 @@
             <button type="button" id="toolCopy" data-i18n="btn_copy">複製</button>
             <button type="button" id="toolCancel" data-i18n="btn_cancel">取消</button>
           </div>
+          <p id="toolDisabledBanner" class="disabled-banner hidden" data-i18n="msg_disabled_locked">此筆已失效，無法修改（請先啟用）。</p>
           <form id="toolForm" class="form grid-2">
             <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
             <label><span data-i18n="field_vision_id">Vision ID</span><input name="vision_id" autocomplete="off" /></label>
@@ -114,35 +117,35 @@
             <div class="span-2 form-subtitle" data-i18n="field_cal_tool">calibration.tool</div>
             <div class="span-2 pose-row">
               <span class="pose-tag">xyz</span>
-              <label><span>x</span><input name="tool_x" autocomplete="off" /></label>
-              <label><span>y</span><input name="tool_y" autocomplete="off" /></label>
-              <label><span>z</span><input name="tool_z" autocomplete="off" /></label>
+              <label><span>x</span><input name="tool_x" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>y</span><input name="tool_y" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>z</span><input name="tool_z" class="num-input" inputmode="decimal" autocomplete="off" /></label>
             </div>
             <div class="span-2 pose-row">
               <span class="pose-tag">RPY</span>
-              <label><span>R</span><input name="tool_r" autocomplete="off" /></label>
-              <label><span>P</span><input name="tool_p" autocomplete="off" /></label>
-              <label><span>Y</span><input name="tool_yaw" autocomplete="off" /></label>
+              <label><span>R</span><input name="tool_r" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>P</span><input name="tool_p" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>Y</span><input name="tool_yaw" class="num-input" inputmode="decimal" autocomplete="off" /></label>
             </div>
             <div class="span-2 form-subtitle" data-i18n="field_cal_vision">calibration.vision</div>
             <div class="span-2 pose-row">
               <span class="pose-tag">xyz</span>
-              <label><span>x</span><input name="vision_x" autocomplete="off" /></label>
-              <label><span>y</span><input name="vision_y" autocomplete="off" /></label>
-              <label><span>z</span><input name="vision_z" autocomplete="off" /></label>
+              <label><span>x</span><input name="vision_x" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>y</span><input name="vision_y" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>z</span><input name="vision_z" class="num-input" inputmode="decimal" autocomplete="off" /></label>
             </div>
             <div class="span-2 pose-row">
               <span class="pose-tag">RPY</span>
-              <label><span>R</span><input name="vision_r" autocomplete="off" /></label>
-              <label><span>P</span><input name="vision_p" autocomplete="off" /></label>
-              <label><span>Y</span><input name="vision_yaw" autocomplete="off" /></label>
+              <label><span>R</span><input name="vision_r" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>P</span><input name="vision_p" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>Y</span><input name="vision_yaw" class="num-input" inputmode="decimal" autocomplete="off" /></label>
             </div>
             <div class="span-2 form-subtitle" data-i18n="field_cal_ref">calibration.tool_ref_point</div>
             <div class="span-2 pose-row">
               <span class="pose-tag">xyz</span>
-              <label><span>x</span><input name="ref_x" autocomplete="off" /></label>
-              <label><span>y</span><input name="ref_y" autocomplete="off" /></label>
-              <label><span>z</span><input name="ref_z" autocomplete="off" /></label>
+              <label><span>x</span><input name="ref_x" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>y</span><input name="ref_y" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+              <label><span>z</span><input name="ref_z" class="num-input" inputmode="decimal" autocomplete="off" /></label>
             </div>
             <div class="visible-row span-2">
               <span data-i18n="field_visible">可見狀態</span>
