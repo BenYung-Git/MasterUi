@@ -125,7 +125,8 @@ main {
   opacity: 0.96;
 }
 
-.card.is-disabled .form input:disabled {
+.card.is-disabled .form input:disabled,
+.card.is-disabled .form textarea:disabled {
   background: #e8eaee;
   color: #6b7280;
   cursor: not-allowed;
@@ -215,9 +216,18 @@ button:hover { background: var(--accent-soft); }
   color: var(--muted);
 }
 
-#panel-tool .split {
+#panel-tool .split,
+#panel-vision-settings .split {
   grid-template-columns: 1fr;
   max-width: 760px;
+}
+
+.mode-area {
+  width: 100%;
+  min-height: 12em;
+  resize: vertical;
+  font-family: Consolas, "Courier New", monospace;
+  line-height: 1.4;
 }
 
 .pose-row {

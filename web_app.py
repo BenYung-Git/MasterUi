@@ -36,6 +36,17 @@ from tool_setting_store import (
     tool_to_public,
     upsert_tool,
 )
+from vision_setting_store import (
+    copy_entry as copy_vision_entry,
+    list_vision_ids,
+    load_data as load_vision_data,
+    next_id as next_vision_id,
+    save_data as save_vision_data,
+    soft_delete as soft_delete_vision,
+    soft_restore as soft_restore_vision,
+    upsert_vision,
+    vision_to_public,
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 I18N_PATH = BASE_DIR / "i18n.json"
@@ -102,6 +113,16 @@ class ToolPayload(BaseModel):
     ref_x: Any = ""
     ref_y: Any = ""
     ref_z: Any = ""
+    visible: bool = True
+
+
+class VisionPayload(BaseModel):
+    id: str = Field(..., min_length=1)
+    original_id: str | None = None
+    product_id: str = ""
+    product_typename: str = ""
+    ip: str = ""
+    mode: str = ""
     visible: bool = True
 
 
@@ -358,3 +379,70 @@ def api_enable_tool(item_id: str) -> dict:
     save_tool_data(data)
     data = load_tool_data()
     return {"ok": True, "item": tool_to_public(item_id, data[item_id])}
+
+
+@app.get("/api/visions")
+def api_visions() -> dict:
+    data = load_vision_data()
+    ids = list_vision_ids(data, include_hidden=True)
+    items = [vision_to_public(i, data[i]) for i in ids]
+    return {"ids": ids, "items": items, "next_id": next_vision_id(data, "vision")}
+
+
+@app.post("/api/visions")
+def api_save_vision(payload: VisionPayload) -> dict:
+    data = load_vision_data()
+    key = payload.id.strip()
+    if not key:
+        raise HTTPException(400, "ID required")
+    old = (payload.original_id or "").strip() or None
+    _ensure_editable(data, old or (key if key in data else None))
+    if old is None and key in data:
+        raise HTTPException(400, "ID exists")
+    if old and old != key:
+        if key in data:
+            raise HTTPException(400, "ID exists")
+        if old in data:
+            del data[old]
+    fields = payload.model_dump()
+    try:
+        upsert_vision(data, key, fields)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    save_vision_data(data)
+    data = load_vision_data()
+    return {"ok": True, "item": vision_to_public(key, data[key])}
+
+
+@app.post("/api/visions/{item_id}/copy")
+def api_copy_vision(item_id: str) -> dict:
+    data = load_vision_data()
+    if item_id not in data or item_id not in list_vision_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    _ensure_editable(data, item_id)
+    new_id = copy_vision_entry(data, item_id)
+    save_vision_data(data)
+    data = load_vision_data()
+    return {"ok": True, "id": new_id, "item": vision_to_public(new_id, data[new_id])}
+
+
+@app.post("/api/visions/{item_id}/disable")
+def api_disable_vision(item_id: str) -> dict:
+    data = load_vision_data()
+    if item_id not in data or item_id not in list_vision_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    soft_delete_vision(data, item_id)
+    save_vision_data(data)
+    data = load_vision_data()
+    return {"ok": True, "item": vision_to_public(item_id, data[item_id])}
+
+
+@app.post("/api/visions/{item_id}/enable")
+def api_enable_vision(item_id: str) -> dict:
+    data = load_vision_data()
+    if item_id not in data or item_id not in list_vision_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    soft_restore_vision(data, item_id)
+    save_vision_data(data)
+    data = load_vision_data()
+    return {"ok": True, "item": vision_to_public(item_id, data[item_id])}

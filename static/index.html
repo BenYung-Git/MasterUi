@@ -33,6 +33,7 @@
   <nav class="tabs">
     <button type="button" class="tab active" data-tab="robot" data-i18n="tab_robot">機械臂設定</button>
     <button type="button" class="tab" data-tab="tool" data-i18n="tab_tool">工具設定</button>
+    <button type="button" class="tab" data-tab="vision-settings" data-i18n="tab_vision">視覺設定</button>
   </nav>
 
   <main>
@@ -151,6 +152,39 @@
               <span data-i18n="field_visible">可見狀態</span>
               <strong id="toolVisibleText">啟用</strong>
               <button type="button" id="toolToggleVisible" class="btn-toggle"></button>
+            </div>
+            <input type="hidden" name="visible" value="true" />
+            <input type="hidden" name="original_id" value="" />
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-vision-settings" class="panel">
+      <div class="split">
+        <div class="card" id="visionCard">
+          <h2 data-i18n="section_visions">視覺列表</h2>
+          <select id="visionList" size="5" class="listbox"></select>
+          <div class="btn-row">
+            <button type="button" id="visionNew" data-i18n="btn_new">新增</button>
+            <button type="button" id="visionSave" data-i18n="btn_save">儲存</button>
+            <button type="button" id="visionCopy" data-i18n="btn_copy">複製</button>
+            <button type="button" id="visionCancel" data-i18n="btn_cancel">取消</button>
+          </div>
+          <p id="visionDisabledBanner" class="disabled-banner hidden" data-i18n="msg_disabled_locked">此筆已失效，無法修改（請先啟用）。</p>
+          <form id="visionForm" class="form grid-2">
+            <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
+            <label><span data-i18n="field_ip">IP</span><input name="ip" autocomplete="off" /></label>
+            <label><span data-i18n="field_product_id">產品序號</span><input name="product_id" autocomplete="off" /></label>
+            <label><span data-i18n="field_product_typename">產品型號</span><input name="product_typename" autocomplete="off" /></label>
+            <label class="span-2"><span data-i18n="field_mode">量測模式</span>
+              <textarea name="mode" rows="12" class="mode-area" autocomplete="off"></textarea>
+            </label>
+            <p class="hint span-2" data-i18n="hint_vision_mode">每行一個模式：名稱: 數值</p>
+            <div class="visible-row span-2">
+              <span data-i18n="field_visible">可見狀態</span>
+              <strong id="visionVisibleText">啟用</strong>
+              <button type="button" id="visionToggleVisible" class="btn-toggle"></button>
             </div>
             <input type="hidden" name="visible" value="true" />
             <input type="hidden" name="original_id" value="" />

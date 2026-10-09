@@ -5,15 +5,19 @@
     robots: { ids: [], items: [], next_id: "robot1" },
     groups: { ids: [], items: [], next_id: "group1" },
     tools: { ids: [], items: [], next_id: "tool1" },
+    visions: { ids: [], items: [], next_id: "vision1" },
     robotOriginalId: "",
     groupOriginalId: "",
     toolOriginalId: "",
+    visionOriginalId: "",
     robotBeforeNew: null,
     groupBeforeNew: null,
     toolBeforeNew: null,
+    visionBeforeNew: null,
     robotIsNew: false,
     groupIsNew: false,
     toolIsNew: false,
+    visionIsNew: false,
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -54,6 +58,7 @@
     syncVisibleButtons("robot");
     syncVisibleButtons("group");
     syncVisibleButtons("tool");
+    syncVisibleButtons("vision");
   }
 
   function fillLangSelect() {
@@ -187,6 +192,14 @@
         copy: "#toolCopy",
         isNew: () => state.toolIsNew,
       },
+      vision: {
+        form: "#visionForm",
+        card: "#visionCard",
+        banner: "#visionDisabledBanner",
+        save: "#visionSave",
+        copy: "#visionCopy",
+        isNew: () => state.visionIsNew,
+      },
     };
     const cfg = map[kind];
     const form = $(cfg.form);
@@ -204,9 +217,13 @@
   }
 
   function assertEditable(kind) {
-    const form = $(
-      kind === "robot" ? "#robotForm" : kind === "group" ? "#groupForm" : "#toolForm"
-    );
+    const forms = {
+      robot: "#robotForm",
+      group: "#groupForm",
+      tool: "#toolForm",
+      vision: "#visionForm",
+    };
+    const form = $(forms[kind]);
     if (form.elements.visible.value !== "true") {
       throw new Error(t("msg_disabled_locked"));
     }
@@ -216,6 +233,11 @@
     renderList($("#robotList"), state.robots);
     renderList($("#groupList"), state.groups);
     renderList($("#toolList"), state.tools);
+    renderList($("#visionList"), state.visions);
+  }
+
+  function selVision() {
+    return $("#visionList")?.value || null;
   }
 
   function findItem(pack, id) {
@@ -294,11 +316,26 @@
     syncVisibleButtons("tool");
   }
 
+  function fillVisionForm(item) {
+    const form = $("#visionForm");
+    form.elements.id.value = item?.id ?? "";
+    form.elements.ip.value = item?.ip ?? "";
+    form.elements.product_id.value = item?.product_id ?? "";
+    form.elements.product_typename.value = item?.product_typename ?? "";
+    form.elements.mode.value = item?.mode ?? "";
+    form.elements.original_id.value = item?.id ?? "";
+    form.elements.visible.value = item ? String(!!item.visible) : "true";
+    state.visionOriginalId = item?.id ?? "";
+    state.visionIsNew = false;
+    syncVisibleButtons("vision");
+  }
+
   function syncVisibleButtons(kind) {
     const map = {
       robot: { form: "#robotForm", text: "#robotVisibleText", btn: "#robotToggleVisible" },
       group: { form: "#groupForm", text: "#groupVisibleText", btn: "#groupToggleVisible" },
       tool: { form: "#toolForm", text: "#toolVisibleText", btn: "#toolToggleVisible" },
+      vision: { form: "#visionForm", text: "#visionVisibleText", btn: "#visionToggleVisible" },
     };
     const cfg = map[kind];
     const form = $(cfg.form);
@@ -314,11 +351,12 @@
     syncEditableState(kind);
   }
 
-  async function reloadAll(selectRobotId, selectGroupId, selectToolId) {
+  async function reloadAll(selectRobotId, selectGroupId, selectToolId, selectVisionId) {
     const settled = await Promise.allSettled([
       api("/api/robots"),
       api("/api/groups"),
       api("/api/tools"),
+      api("/api/visions"),
     ]);
     const errors = [];
     if (settled[0].status === "fulfilled") state.robots = settled[0].value;
@@ -327,15 +365,19 @@
     else errors.push(settled[1].reason);
     if (settled[2].status === "fulfilled") state.tools = settled[2].value;
     else errors.push(settled[2].reason);
+    if (settled[3].status === "fulfilled") state.visions = settled[3].value;
+    else errors.push(settled[3].reason);
 
     renderLists();
 
     const robots = state.robots;
     const groups = state.groups;
     const tools = state.tools;
+    const visions = state.visions;
     const rList = $("#robotList");
     const gList = $("#groupList");
     const tList = $("#toolList");
+    const vList = $("#visionList");
     if (selectRobotId && robots.ids.includes(selectRobotId)) {
       rList.value = selectRobotId;
     }
@@ -345,12 +387,17 @@
     if (selectToolId && tools.ids.includes(selectToolId)) {
       tList.value = selectToolId;
     }
+    if (selectVisionId && visions.ids.includes(selectVisionId)) {
+      vList.value = selectVisionId;
+    }
     if (rList.value) fillRobotForm(findItem(robots, rList.value));
     else fillRobotForm(null);
     if (gList.value) fillGroupForm(findItem(groups, gList.value));
     else fillGroupForm(null);
     if (tList && tList.value) fillToolForm(findItem(tools, tList.value));
     else if (tList) fillToolForm(null);
+    if (vList && vList.value) fillVisionForm(findItem(visions, vList.value));
+    else if (vList) fillVisionForm(null);
 
     if (errors.length) {
       const err = errors[0];
@@ -436,7 +483,7 @@
         : state.robotOriginalId || state.robots.ids[0];
       state.robotIsNew = false;
       state.robotBeforeNew = null;
-      await reloadAll(target, $("#groupList").value || null, $("#toolList").value || null);
+      await reloadAll(target, $("#groupList").value || null, $("#toolList").value || null, selVision());
     });
 
     $("#robotSave").addEventListener("click", async () => {
@@ -449,7 +496,7 @@
           body: JSON.stringify(payload),
         });
         state.robotIsNew = false;
-        await reloadAll(res.item.id, $("#groupList").value || null, $("#toolList").value || null);
+        await reloadAll(res.item.id, $("#groupList").value || null, $("#toolList").value || null, selVision());
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -464,7 +511,7 @@
         const res = await api(`/api/robots/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll(res.id, $("#groupList").value || null, $("#toolList").value || null);
+        await reloadAll(res.id, $("#groupList").value || null, $("#toolList").value || null, selVision());
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -483,7 +530,7 @@
         const res = await api(`/api/robots/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
-        await reloadAll(res.item.id, $("#groupList").value || null, $("#toolList").value || null);
+        await reloadAll(res.item.id, $("#groupList").value || null, $("#toolList").value || null, selVision());
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -517,7 +564,7 @@
         : state.groupOriginalId || state.groups.ids[0];
       state.groupIsNew = false;
       state.groupBeforeNew = null;
-      await reloadAll($("#robotList").value || null, target, $("#toolList").value || null);
+      await reloadAll($("#robotList").value || null, target, $("#toolList").value || null, selVision());
     });
 
     $("#groupSave").addEventListener("click", async () => {
@@ -537,7 +584,7 @@
           body: JSON.stringify(payload),
         });
         state.groupIsNew = false;
-        await reloadAll($("#robotList").value || null, res.item.id, $("#toolList").value || null);
+        await reloadAll($("#robotList").value || null, res.item.id, $("#toolList").value || null, selVision());
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -552,7 +599,7 @@
         const res = await api(`/api/groups/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll($("#robotList").value || null, res.id, $("#toolList").value || null);
+        await reloadAll($("#robotList").value || null, res.id, $("#toolList").value || null, selVision());
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -571,7 +618,7 @@
         const res = await api(`/api/groups/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
-        await reloadAll($("#robotList").value || null, res.item.id, $("#toolList").value || null);
+        await reloadAll($("#robotList").value || null, res.item.id, $("#toolList").value || null, selVision());
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -603,11 +650,7 @@
         : state.toolOriginalId || state.tools.ids[0];
       state.toolIsNew = false;
       state.toolBeforeNew = null;
-      await reloadAll(
-        $("#robotList").value || null,
-        $("#groupList").value || null,
-        target
-      );
+      await reloadAll($("#robotList").value || null, $("#groupList").value || null, target, selVision());
     });
 
     $("#toolSave").addEventListener("click", async () => {
@@ -622,11 +665,7 @@
           body: JSON.stringify(payload),
         });
         state.toolIsNew = false;
-        await reloadAll(
-          $("#robotList").value || null,
-          $("#groupList").value || null,
-          res.item.id
-        );
+        await reloadAll($("#robotList").value || null, $("#groupList").value || null, res.item.id, selVision());
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -641,11 +680,7 @@
         const res = await api(`/api/tools/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll(
-          $("#robotList").value || null,
-          $("#groupList").value || null,
-          res.id
-        );
+        await reloadAll($("#robotList").value || null, $("#groupList").value || null, res.id, selVision());
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -664,9 +699,114 @@
         const res = await api(`/api/tools/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
+        await reloadAll($("#robotList").value || null, $("#groupList").value || null, res.item.id, selVision());
+        toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
+      } catch (err) {
+        toast(String(err.message || err), true);
+      }
+    });
+  }
+
+  function bindVisionActions() {
+    $("#visionList").addEventListener("change", () => {
+      const item = findItem(state.visions, $("#visionList").value);
+      fillVisionForm(item);
+    });
+
+    $("#visionNew").addEventListener("click", () => {
+      state.visionBeforeNew = state.visionOriginalId || state.visions.ids[0] || null;
+      state.visionIsNew = true;
+      $("#visionList").selectedIndex = -1;
+      fillVisionForm({
+        id: state.visions.next_id,
+        visible: true,
+        mode: "",
+      });
+      state.visionIsNew = true;
+      $("#visionForm").elements.original_id.value = "";
+    });
+
+    $("#visionCancel").addEventListener("click", async () => {
+      const target = state.visionIsNew
+        ? state.visionBeforeNew
+        : state.visionOriginalId || state.visions.ids[0];
+      state.visionIsNew = false;
+      state.visionBeforeNew = null;
+      await reloadAll(
+        $("#robotList").value || null,
+        $("#groupList").value || null,
+        $("#toolList").value || null,
+        target
+      );
+    });
+
+    $("#visionSave").addEventListener("click", async () => {
+      try {
+        assertEditable("vision");
+        const form = $("#visionForm");
+        const payload = {
+          id: form.elements.id.value.trim(),
+          original_id: form.elements.original_id.value || null,
+          product_id: form.elements.product_id.value,
+          product_typename: form.elements.product_typename.value,
+          ip: form.elements.ip.value,
+          mode: form.elements.mode.value,
+          visible: form.elements.visible.value === "true",
+        };
+        if (!payload.id) throw new Error(t("msg_id_required"));
+        const res = await api("/api/visions", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        state.visionIsNew = false;
         await reloadAll(
           $("#robotList").value || null,
           $("#groupList").value || null,
+          $("#toolList").value || null,
+          res.item.id
+        );
+        toast(t("msg_saved"));
+      } catch (err) {
+        toast(String(err.message || err), true);
+      }
+    });
+
+    $("#visionCopy").addEventListener("click", async () => {
+      const id = state.visionOriginalId || $("#visionList").value;
+      if (!id) return toast(t("msg_select_first"), true);
+      try {
+        assertEditable("vision");
+        const res = await api(`/api/visions/${encodeURIComponent(id)}/copy`, {
+          method: "POST",
+        });
+        await reloadAll(
+          $("#robotList").value || null,
+          $("#groupList").value || null,
+          $("#toolList").value || null,
+          res.id
+        );
+        toast(t("msg_copied").replace("{id}", res.id));
+      } catch (err) {
+        toast(String(err.message || err), true);
+      }
+    });
+
+    $("#visionToggleVisible").addEventListener("click", async () => {
+      const id = state.visionOriginalId || $("#visionList").value;
+      if (!id || state.visionIsNew) return toast(t("msg_select_first"), true);
+      const mode = $("#visionToggleVisible").dataset.mode;
+      if (mode === "disable") {
+        if (!confirm(t("msg_confirm_soft_delete").replace("{id}", id))) return;
+      }
+      try {
+        const path = mode === "disable" ? "disable" : "enable";
+        const res = await api(`/api/visions/${encodeURIComponent(id)}/${path}`, {
+          method: "POST",
+        });
+        await reloadAll(
+          $("#robotList").value || null,
+          $("#groupList").value || null,
+          $("#toolList").value || null,
           res.item.id
         );
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
@@ -691,7 +831,8 @@
     bindRobotActions();
     bindGroupActions();
     bindToolActions();
-    await reloadAll(null, null, null);
+    bindVisionActions();
+    await reloadAll(null, null, null, null);
   }
 
   boot().catch((err) => toast(String(err.message || err), true));

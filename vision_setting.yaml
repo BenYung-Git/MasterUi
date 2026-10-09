@@ -1,0 +1,78 @@
+# Vision settings (master copy; source is not modified)
+vision1:
+  product_id: M108XKQ0008063
+  product_typename: CXZK-RBTA4-S
+  ip: 192.168.2.3
+  mode:
+    V_SHAPE_BOTTOM: 1
+    V_SHAPE_SURFACE: 2
+    STEP_RIGHT_H_OUTPUT_H: 3
+    STEP_RIGHT_H_OUTPUT_L: 4
+    STEP_RIGHT_H_OUTPUT_L_FAR: 5
+    STEP_RIGHT_H_OUTPUT_L_FAR_OFFSET: 10.0
+    T_SHAPE_LOW_CENTER_AND_W: 6
+    T_SHAPE_LOW_R: 7
+    T_SHAPE_HIGH_L: 8
+    T_SHAPE_HIGH_R: 9
+    STEP_LEFT_H_OUTPUT_L: 10
+    STEP_LEFT_H_OUTPUT_H: 11
+    STEP_LEFT_H_OUTPUT_H_FAR: 12
+    STEP_LEFT_H_OUTPUT_H_FAR_OFFSET: 10.0
+    STEP_RIGHT_H_OUTPUT_H2: 13
+    STEP_RIGHT_H_OUTPUT_L2: 14
+    STEP_RIGHT_H_OUTPUT_H_FAR2: 15
+    STEP_RIGHT_H_OUTPUT_H_FAR_OFFSET2: 10.0
+    V_SHAPE_BOTTOM2: 16
+    V_SHAPE_BOTTOM2_FAR: 17
+    V_SHAPE_BOTTOM2_FAR_OFFSET: 10.0
+    SCREW_STEEL_ON_TABLE: 18
+    SCREW_STEEL_OUTMOST_POINT: 19
+  visible: true
+vision2:
+  product_id: M108XZS0007372
+  product_typename: CXZK-RBTA4-S
+  ip: 192.168.2.3
+  mode:
+    STEP_RIGHT_H_OUTPUT_H2: 13
+    STEP_RIGHT_H_OUTPUT_L2: 14
+    STEP_RIGHT_H_OUTPUT_H_FAR2: 15
+    STEP_RIGHT_H_OUTPUT_H_FAR_OFFSET2: 10.0
+    V_SHAPE_BOTTOM2: 16
+    V_SHAPE_BOTTOM2_FAR: 17
+    V_SHAPE_BOTTOM2_FAR_OFFSET: 10.0
+    STEP_TILT_VIEW: 20
+  visible: true
+vision3:
+  product_id: M108XKQ0008060
+  product_typename: CXZK-RBTA4-S
+  ip: 192.168.2.3
+  mode:
+    SCREW_STEEL_ON_TABLE: 18
+    SCREW_STEEL_OUTMOST_POINT: 19
+  visible: true
+vision4:
+  product_id: M108XKQ0008073
+  product_typename: CXZK-RBTA4-S
+  ip: 192.168.2.4
+  mode:
+    SCREW_STEEL_ON_TABLE: 18
+    SCREW_STEEL_OUTMOST_POINT: 19
+  visible: true
+vision5:
+  product_id: M311XJR0003440
+  product_typename: CXZK-RBTA4N-DKH
+  ip: 192.168.2.5
+  mode:
+    SCREW_STEEL_ON_TABLE: 18
+    SCREW_STEEL_OUTMOST_POINT: 19
+    SCREW_STEEL_PLANE_POINT: 21
+  visible: true
+vision6:
+  product_id: M311XJR0003441
+  product_typename: CXZK-RBTA4N-DKH
+  ip: 192.168.2.6
+  mode:
+    SCREW_STEEL_ON_TABLE: 18
+    SCREW_STEEL_OUTMOST_POINT: 19
+    SCREW_STEEL_PLANE_POINT: 21
+  visible: true
