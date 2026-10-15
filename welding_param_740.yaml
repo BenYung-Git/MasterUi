@@ -1,0 +1,32 @@
+description: |
+  For 2-point welding with swing, horizontal screw steel (diameter 8mm). Pin should be outward by 15mm. [Megmeet] 152A 17.9V
+weld_length: 900.0
+weld_speed: 1.0
+safe_height: 30.0
+RTOL: True
+actions_offset: [0, 0]
+actions:
+  - [0, 0, 0,2] #1
+  - [-7, 5, -5,2.5] #2
+  - [0, 5, 0,2.5] #3
+  - [-6, 10, 0,2.5] #4
+safe_return_coord: [0, -50, 50]
+actions_param:
+  swing_list:
+    - period: 1.5 #1
+      hold_times: [0.5, 0.1]
+      first_stroke_rel_offset: [3, 0]
+      second_stroke_rel_offset: [0, 4]
+    - period: 1.2 #2
+      hold_times: [0.1, 0.2]
+      first_stroke_rel_offset: [4, 0]
+      second_stroke_rel_offset: [0, 4]
+    - period: 3.0 #3
+      hold_times: [0.5,0, 1.0,0]
+      first_stroke_rel_offset: [5, 0]
+      second_stroke_rel_offset: [0, 5]
+    - period: 1.5 #4
+      hold_times: [0.6, 0]
+      first_stroke_rel_offset: [3, 0]
+      second_stroke_rel_offset: [0, 3]
+executor_type: point_pairs

@@ -1,0 +1,26 @@
+description: |
+  For L-shape welding with swing. 10mm. Pin should be outward (electric mouth) by 15mm. [Megmeet] 130A 18.5V.
+weld_length: 900.0
+safe_height: 30.0
+weld_speed: 1.2
+tol: 1.0
+actions_offset: [0, 0]
+actions:
+  - [0.0, 0.0, 45, 1.8] #1
+  - [6, 0, 45, 2.3] #2
+  - [0, 6, 45, 2.3] #3
+actions_param:
+  swing_list:
+    - period: 2 #1
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [0, 3]
+      second_stroke_rel_offset: [4, 0]
+    - period: 2 #2
+      hold_times: [0.01, 0.1]
+      first_stroke_rel_offset: [-4, 4]
+      second_stroke_rel_offset: [3, 0]
+    - period: 4 #3
+      hold_times: [1.0, 0, 0.5, 0]
+      first_stroke_rel_offset: [0, 3]
+      second_stroke_rel_offset: [5, 0]
+executor_type: point_pairs

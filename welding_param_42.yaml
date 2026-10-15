@@ -1,0 +1,16 @@
+description: |
+  For 2-point welding with swing, right-side of vertical screw steel (diameter 15mm). Pin should be outward by 15mm. 128A 18.4V
+weld_length: 900.0
+weld_speed: 0.8
+safe_height: 30.0
+RTOL: False
+actions_offset: [0, 0]
+actions:
+  - [0, 0, 0]
+safe_return_coord: [0, 0, 50]
+swing:
+  period: 3.5 #1
+  hold_times: [0.25, 0., 0.25, 0.]
+  first_stroke_rel_offset: [6, 0]
+  second_stroke_rel_offset: [0, 6]
+executor_type: point_pairs

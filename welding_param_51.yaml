@@ -1,0 +1,17 @@
+description: |
+  For 2-point welding with swing, left-side of vertical screw steel (square, width 40mm). Pin should be outward by 15mm. 128A 18.4V. mark upwards 2mm. angle 38. need buttering first.
+weld_length: 900.0
+weld_speed: 0.38
+safe_height: 30.0
+RTOL: True
+actions_offset: [0, 0]
+actions:
+  - [0, 0, 0]
+safe_return_coord: [0, 0, 50]
+actions_param:
+  swing_list:
+    - period: 4.7 #1
+      hold_times: [0.25, 0.4, 0.8, 0.4]
+      first_stroke_rel_offset: [10, 0]
+      second_stroke_rel_offset: [0, 10]
+executor_type: point_pairs

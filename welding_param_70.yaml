@@ -1,0 +1,31 @@
+description: |
+  For ring welding with swing. Outer Bottom Ring. Pin should be outward (electric mouth) by 15mm. [Megmeet] 140A 18.9V
+weld_length: 900.0
+safe_height: 30.0
+weld_speed: 1.2
+tol: 1.0
+actions_offset: [0, 0]
+actions:
+  - [0.0, 0.0, 45, 1.8] #1
+  - [8, 0, 45, 2.0] #2
+  - [5.5, 5, 45, 2.0] #3
+  - [0, 10.0, 45, 1.8] #4
+actions_param:
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [0, 3]
+      second_stroke_rel_offset: [5, 0]
+    - period: 1.5 #2
+      hold_times: [0.01, 0.01]
+      first_stroke_rel_offset: [-4, 4]
+      second_stroke_rel_offset: [5, 0]
+    - period: 1.5 #3
+      hold_times: [0.01, 0.01]
+      first_stroke_rel_offset: [-3.5, 2.0]
+      second_stroke_rel_offset: [3.5, 0]
+    - period: 3.2 #3
+      hold_times: [0.5, 0., 0, 0.]
+      first_stroke_rel_offset: [0, 4]
+      second_stroke_rel_offset: [5, 0]
+executor_type: ring

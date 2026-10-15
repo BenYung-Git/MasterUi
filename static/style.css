@@ -73,6 +73,7 @@ select, input {
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 0 22px 10px;
 }
@@ -217,7 +218,9 @@ button:hover { background: var(--accent-soft); }
 }
 
 #panel-tool .split,
-#panel-vision-settings .split {
+#panel-vision-settings .split,
+#panel-welding .split,
+#panel-welding-state .split {
   grid-template-columns: 1fr;
   max-width: 760px;
 }
@@ -228,6 +231,10 @@ button:hover { background: var(--accent-soft); }
   resize: vertical;
   font-family: Consolas, "Courier New", monospace;
   line-height: 1.4;
+}
+
+.yaml-area {
+  min-height: 16em;
 }
 
 .pose-row {

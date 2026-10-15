@@ -47,6 +47,32 @@ from vision_setting_store import (
     upsert_vision,
     vision_to_public,
 )
+from welding_param_store import (
+    copy_entry as copy_welding_entry,
+    list_welding_ids,
+    load_data as load_welding_data,
+    next_id as next_welding_id,
+    remove_entry_file as remove_welding_file,
+    soft_delete as soft_delete_welding,
+    soft_restore as soft_restore_welding,
+    upsert_welding,
+    validate_welding_id,
+    welding_to_public,
+    write_entry as write_welding_entry,
+)
+from welding_state_store import (
+    copy_entry as copy_welding_state_entry,
+    list_state_ids,
+    load_data as load_welding_state_data,
+    next_id as next_welding_state_id,
+    remove_entry_file as remove_welding_state_file,
+    soft_delete as soft_delete_welding_state,
+    soft_restore as soft_restore_welding_state,
+    state_to_public,
+    upsert_state,
+    validate_state_id,
+    write_entry as write_welding_state_entry,
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 I18N_PATH = BASE_DIR / "i18n.json"
@@ -64,7 +90,7 @@ ROBOT_FIELDS = (
     "payload",
 )
 
-app = FastAPI(title="Master UI", version="1.1")
+app = FastAPI(title="Master UI", version="1.2")
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
@@ -123,6 +149,25 @@ class VisionPayload(BaseModel):
     product_typename: str = ""
     ip: str = ""
     mode: str = ""
+    visible: bool = True
+
+
+class WeldingPayload(BaseModel):
+    id: str = Field(..., min_length=1)
+    original_id: str | None = None
+    description: str = ""
+    weld_length: Any = ""
+    weld_speed: Any = ""
+    safe_height: Any = ""
+    executor_type: str = ""
+    yaml_rest: str = ""
+    visible: bool = True
+
+
+class WeldingStatePayload(BaseModel):
+    id: str = Field(..., min_length=1)
+    original_id: str | None = None
+    json_text: str = ""
     visible: bool = True
 
 
@@ -446,3 +491,156 @@ def api_enable_vision(item_id: str) -> dict:
     save_vision_data(data)
     data = load_vision_data()
     return {"ok": True, "item": vision_to_public(item_id, data[item_id])}
+
+
+@app.get("/api/weldings")
+def api_weldings() -> dict:
+    data = load_welding_data()
+    ids = list_welding_ids(data, include_hidden=True)
+    items = [welding_to_public(i, data[i]) for i in ids]
+    return {"ids": ids, "items": items, "next_id": next_welding_id(data)}
+
+
+@app.post("/api/weldings")
+def api_save_welding(payload: WeldingPayload) -> dict:
+    data = load_welding_data()
+    try:
+        key = validate_welding_id(payload.id)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    old = (payload.original_id or "").strip() or None
+    if old:
+        try:
+            old = validate_welding_id(old)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from exc
+    _ensure_editable(data, old or (key if key in data else None))
+    if old is None and key in data:
+        raise HTTPException(400, "ID exists")
+    if old and old != key:
+        if key in data:
+            raise HTTPException(400, "ID exists")
+        if old in data:
+            del data[old]
+    fields = payload.model_dump()
+    try:
+        upsert_welding(data, key, fields)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    write_welding_entry(key, data[key])
+    if old and old != key:
+        remove_welding_file(old)
+    data = load_welding_data()
+    return {"ok": True, "item": welding_to_public(key, data[key])}
+
+
+@app.post("/api/weldings/{item_id}/copy")
+def api_copy_welding(item_id: str) -> dict:
+    data = load_welding_data()
+    if item_id not in data or item_id not in list_welding_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    _ensure_editable(data, item_id)
+    new_id = copy_welding_entry(data, item_id)
+    write_welding_entry(new_id, data[new_id])
+    data = load_welding_data()
+    return {"ok": True, "id": new_id, "item": welding_to_public(new_id, data[new_id])}
+
+
+@app.post("/api/weldings/{item_id}/disable")
+def api_disable_welding(item_id: str) -> dict:
+    data = load_welding_data()
+    if item_id not in data or item_id not in list_welding_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    soft_delete_welding(data, item_id)
+    write_welding_entry(item_id, data[item_id])
+    data = load_welding_data()
+    return {"ok": True, "item": welding_to_public(item_id, data[item_id])}
+
+
+@app.post("/api/weldings/{item_id}/enable")
+def api_enable_welding(item_id: str) -> dict:
+    data = load_welding_data()
+    if item_id not in data or item_id not in list_welding_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    soft_restore_welding(data, item_id)
+    write_welding_entry(item_id, data[item_id])
+    data = load_welding_data()
+    return {"ok": True, "item": welding_to_public(item_id, data[item_id])}
+
+
+@app.get("/api/welding-states")
+def api_welding_states() -> dict:
+    data = load_welding_state_data()
+    ids = list_state_ids(data, include_hidden=True)
+    items = [state_to_public(i, data[i]) for i in ids]
+    return {"ids": ids, "items": items, "next_id": next_welding_state_id(data)}
+
+
+@app.post("/api/welding-states")
+def api_save_welding_state(payload: WeldingStatePayload) -> dict:
+    data = load_welding_state_data()
+    try:
+        key = validate_state_id(payload.id)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    old = (payload.original_id or "").strip() or None
+    if old:
+        try:
+            old = validate_state_id(old)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from exc
+    _ensure_editable(data, old or (key if key in data else None))
+    if old is None and key in data:
+        raise HTTPException(400, "ID exists")
+    if old and old != key:
+        if key in data:
+            raise HTTPException(400, "ID exists")
+        if old in data:
+            del data[old]
+    fields = payload.model_dump()
+    try:
+        upsert_state(data, key, fields)
+        write_welding_state_entry(key, data[key])
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    if old and old != key:
+        remove_welding_state_file(old)
+    data = load_welding_state_data()
+    return {"ok": True, "item": state_to_public(key, data[key])}
+
+
+@app.post("/api/welding-states/{item_id}/copy")
+def api_copy_welding_state(item_id: str) -> dict:
+    data = load_welding_state_data()
+    if item_id not in data or item_id not in list_state_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    _ensure_editable(data, item_id)
+    new_id = copy_welding_state_entry(data, item_id)
+    try:
+        write_welding_state_entry(new_id, data[new_id])
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    data = load_welding_state_data()
+    return {"ok": True, "id": new_id, "item": state_to_public(new_id, data[new_id])}
+
+
+@app.post("/api/welding-states/{item_id}/disable")
+def api_disable_welding_state(item_id: str) -> dict:
+    data = load_welding_state_data()
+    if item_id not in data or item_id not in list_state_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    soft_delete_welding_state(data, item_id)
+    write_welding_state_entry(item_id, data[item_id])
+    data = load_welding_state_data()
+    return {"ok": True, "item": state_to_public(item_id, data[item_id])}
+
+
+@app.post("/api/welding-states/{item_id}/enable")
+def api_enable_welding_state(item_id: str) -> dict:
+    data = load_welding_state_data()
+    if item_id not in data or item_id not in list_state_ids(data, include_hidden=True):
+        raise HTTPException(404, "Not found")
+    soft_restore_welding_state(data, item_id)
+    write_welding_state_entry(item_id, data[item_id])
+    data = load_welding_state_data()
+    return {"ok": True, "item": state_to_public(item_id, data[item_id])}

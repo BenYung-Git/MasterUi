@@ -1,0 +1,37 @@
+description: |
+  For 2-point welding with swing, 30mm butt welding, vertical. Pin should be outward by 15mm. [Megmeet] 142A 17.6V.
+weld_length: 900.0
+weld_speed: 0.9
+safe_height: 30.0
+RTOL: True
+actions_offset: [-0.5, 0]
+actions:
+  - [0, 0, 0]
+  - [-1.5, -5, 0,]
+  - [8, 8, 0, 1.1]
+  - [15, 6, 0, 1.1]
+  - [15, 10, 0, 1.0]
+safe_return_coord: [0, 0, 50]
+actions_param:
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.5, 0.5]
+      first_stroke_rel_offset: [2.5, 0]
+      second_stroke_rel_offset: [-2.5, 0]
+    - period: 4.5 #2
+      hold_times: [1.0, 1.0]
+      first_stroke_rel_offset: [6.5, 0]
+      second_stroke_rel_offset: [-6.5, 0]
+    - period: 4.7 #3
+      hold_times: [0.1, 0.15, 0.7, 0.15]
+      first_stroke_rel_offset: [0, -6]
+      second_stroke_rel_offset: [0, 6]
+    - period: 4.7 #4
+      hold_times: [0.1, 0.15, 0.7, 0.15]
+      first_stroke_rel_offset: [0, -6]
+      second_stroke_rel_offset: [0, 6]
+    - period: 4.7 #5
+      hold_times: [0.1, 0.15, 0.7, 0.15]
+      first_stroke_rel_offset: [0, -6]
+      second_stroke_rel_offset: [0, 6]
+executor_type: point_pairs

@@ -1,0 +1,22 @@
+description: |
+  For ring welding with swing. Butt-welding. 5mm. Column Horizontal (5G). Clock wise. Tool10. 6-point mark [Megmeet] 124A 19.4V
+weld_length: 900.0
+safe_height: 30.0
+weld_speed: 1.75 # 2.0
+tol: 1.0
+actions_offset: [0, 0]
+welding_angle_wrt_y: 5.0
+actions:
+  - [0.0, 0.0, 0] #1
+actions_param:
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.01, 0.01]
+      first_stroke_rel_offset: [3, 2]
+      second_stroke_rel_offset: [3, -3]
+  piecewise_speed_list:
+    - [2, 3, 4, 5] #1
+executor_type: ring
+executor_param:
+  # Whether clockwise mark points and plan motion.
+  clockwise: True

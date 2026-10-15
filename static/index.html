@@ -10,7 +10,7 @@
   <header class="top">
     <div class="brand">
       <h1 data-i18n="form_header">來源資料設定中心</h1>
-      <span class="version" data-i18n="app_version">版本 V1.1</span>
+      <span class="version" data-i18n="app_version">版本 V1.2</span>
     </div>
     <div class="controls">
       <label><span data-i18n="lang_label">語言</span>
@@ -34,6 +34,8 @@
     <button type="button" class="tab active" data-tab="robot" data-i18n="tab_robot">機械臂設定</button>
     <button type="button" class="tab" data-tab="tool" data-i18n="tab_tool">工具設定</button>
     <button type="button" class="tab" data-tab="vision-settings" data-i18n="tab_vision">視覺設定</button>
+    <button type="button" class="tab" data-tab="welding" data-i18n="tab_welding">焊接參數設定</button>
+    <button type="button" class="tab" data-tab="welding-state" data-i18n="tab_welding_state">焊接軌跡</button>
   </nav>
 
   <main>
@@ -185,6 +187,80 @@
               <span data-i18n="field_visible">可見狀態</span>
               <strong id="visionVisibleText">啟用</strong>
               <button type="button" id="visionToggleVisible" class="btn-toggle"></button>
+            </div>
+            <input type="hidden" name="visible" value="true" />
+            <input type="hidden" name="original_id" value="" />
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-welding" class="panel">
+      <div class="split">
+        <div class="card" id="weldingCard">
+          <h2 data-i18n="section_weldings">焊接參數列表</h2>
+          <select id="weldingList" size="8" class="listbox"></select>
+          <div class="btn-row">
+            <button type="button" id="weldingNew" data-i18n="btn_new">新增</button>
+            <button type="button" id="weldingSave" data-i18n="btn_save">儲存</button>
+            <button type="button" id="weldingCopy" data-i18n="btn_copy">複製</button>
+            <button type="button" id="weldingCancel" data-i18n="btn_cancel">取消</button>
+          </div>
+          <p id="weldingDisabledBanner" class="disabled-banner hidden" data-i18n="msg_disabled_locked">此筆已失效，無法修改（請先啟用）。</p>
+          <form id="weldingForm" class="form grid-2">
+            <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
+            <label><span data-i18n="field_executor_type">執行器類型</span><input name="executor_type" autocomplete="off" /></label>
+            <p class="hint span-2" data-i18n="hint_welding_id">ID 格式：welding_param_&lt;數字&gt;</p>
+            <label class="span-2"><span data-i18n="field_description">描述</span>
+              <textarea name="description" rows="3" class="mode-area" autocomplete="off"></textarea>
+            </label>
+            <label><span data-i18n="field_weld_length">焊接長度</span><input name="weld_length" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+            <label><span data-i18n="field_weld_speed">焊接速度</span><input name="weld_speed" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+            <label><span data-i18n="field_safe_height">安全高度</span><input name="safe_height" class="num-input" inputmode="decimal" autocomplete="off" /></label>
+            <label class="span-2"><span data-i18n="field_yaml_rest">其餘 YAML 欄位</span>
+              <textarea name="yaml_rest" rows="16" class="mode-area yaml-area" autocomplete="off" spellcheck="false"></textarea>
+            </label>
+            <p class="hint span-2" data-i18n="hint_welding_yaml">其餘欄位以 YAML 對應寫入</p>
+            <div class="visible-row span-2">
+              <span data-i18n="field_visible">可見狀態</span>
+              <strong id="weldingVisibleText">啟用</strong>
+              <button type="button" id="weldingToggleVisible" class="btn-toggle"></button>
+            </div>
+            <input type="hidden" name="visible" value="true" />
+            <input type="hidden" name="original_id" value="" />
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-welding-state" class="panel">
+      <div class="split">
+        <div class="card" id="weldingStateCard">
+          <h2 data-i18n="section_welding_states">焊接軌跡列表</h2>
+          <select id="weldingStateList" size="8" class="listbox"></select>
+          <div class="btn-row">
+            <button type="button" id="weldingStateNew" data-i18n="btn_new">新增</button>
+            <button type="button" id="weldingStateSave" data-i18n="btn_save">儲存</button>
+            <button type="button" id="weldingStateCopy" data-i18n="btn_copy">複製</button>
+            <button type="button" id="weldingStateCancel" data-i18n="btn_cancel">取消</button>
+          </div>
+          <p id="weldingStateDisabledBanner" class="disabled-banner hidden" data-i18n="msg_disabled_locked">此筆已失效，無法修改（請先啟用）。</p>
+          <form id="weldingStateForm" class="form grid-2">
+            <label><span data-i18n="field_id">ID</span><input name="id" autocomplete="off" /></label>
+            <label><span data-i18n="field_work_id">Work ID</span><input name="work_id" readonly /></label>
+            <p class="hint span-2" data-i18n="hint_welding_state_id">ID 格式：welding_state_&lt;數字&gt;</p>
+            <label><span data-i18n="field_filename">檔案名稱</span><input name="filename" readonly /></label>
+            <label><span data-i18n="field_df_points">df_dict 點位數量</span><input name="df_points" readonly /></label>
+            <label><span data-i18n="field_target_rt_count">target_rt_rev_list 數量</span><input name="target_rt_count" readonly /></label>
+            <label class="span-2"><span data-i18n="field_safe_return_rt">safe_return_rt</span><input name="safe_return_rt" readonly /></label>
+            <label class="span-2"><span data-i18n="field_json_text">原始 JSON</span>
+              <textarea name="json_text" rows="18" class="mode-area yaml-area" autocomplete="off" spellcheck="false"></textarea>
+            </label>
+            <p class="hint span-2" data-i18n="hint_welding_state_json">第一版以 JSON 全文編輯</p>
+            <div class="visible-row span-2">
+              <span data-i18n="field_visible">可見狀態</span>
+              <strong id="weldingStateVisibleText">啟用</strong>
+              <button type="button" id="weldingStateToggleVisible" class="btn-toggle"></button>
             </div>
             <input type="hidden" name="visible" value="true" />
             <input type="hidden" name="original_id" value="" />

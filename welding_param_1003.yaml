@@ -1,0 +1,53 @@
+description: |
+  For 2-point welding with swing, 20mm butt welding, horizontal lie down. Pin should be outward by 15mm. [Megmeet] 130A 18.5V. 
+weld_length: 900.0
+weld_speed: 3.0
+safe_height: 30.0
+RTOL: False
+apply_fixed_rotation_for_angle_offset: True
+safe_return_coord: [0, 0, 50]
+actions_offset: [0, 0]
+actions:
+  - [2.0, 5.0, 15] #1
+  - [7.0, 8.0, 10] #2
+  - [8, 10, 10,2.5 ] #3
+  - [10, 8, 10,2.5] #4
+  - [10, 14.5,10,2.5] #5
+  - [15, 6,10,2.5] #6
+  - [15, 12,10,2.5] #7
+  - [15, 18,10,2.5] #8
+actions_param:
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.1, 0., 0.1, 0.]
+      first_stroke_rel_offset: [3, 0]
+      second_stroke_rel_offset: [0, 4]
+    - period: 2.5 #2
+      hold_times: [0.5, 0.5]
+      first_stroke_rel_offset: [0, -4]
+      second_stroke_rel_offset: [0, 4]
+    - period: 3 #3
+      hold_times: [0.5, 0.5]
+      first_stroke_rel_offset: [0, -5]
+      second_stroke_rel_offset: [0, 5]
+    - period: 3 #4
+      hold_times: [0.1, 0.1]
+      first_stroke_rel_offset: [0, -3]
+      second_stroke_rel_offset: [0, 3]
+    - period: 3 #5
+      hold_times: [0.1, 0.5]
+      first_stroke_rel_offset: [0, -3]
+      second_stroke_rel_offset: [0, 3]
+    - period: 3 #6
+      hold_times: [0.5, 0.5]
+      first_stroke_rel_offset: [0, -3]
+      second_stroke_rel_offset: [0, 3]
+    - period: 3 #7
+      hold_times: [0.5, 0.5]
+      first_stroke_rel_offset: [0, -3]
+      second_stroke_rel_offset: [0, 3]
+    - period: 3 #8
+      hold_times: [0.5, 0.5]
+      first_stroke_rel_offset: [0, -3]
+      second_stroke_rel_offset: [0, 3]
+executor_type: point_pairs

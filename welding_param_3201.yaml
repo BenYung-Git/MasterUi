@@ -1,0 +1,28 @@
+description: |
+  For 2-point welding with swing, large-piece T-shape head up. Pin should be outward (electric mouth) by 13mm.
+weld_length: 900.0
+weld_speed: 1.2
+safe_height: 130.0
+RTOL: False
+actions_offset: [0, 0]
+actions:
+  - [0.0, 0.0, 0, 1.8] #1, 128A 18.3V
+  - [0, -3.5, 0, 3.0] #2, 128A 18.3V
+  - [4.0, 0.0, 0, 1.4] #3, 128A 18.3V 
+safe_return_coord: [0, 0, 150]
+actions_param:
+  # break_points: [[80, 100], [200, 220]]
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [3, 0]
+      second_stroke_rel_offset: [0, -5]
+    - period: 1.5 #2
+      hold_times: [0.01, 0.01]
+      first_stroke_rel_offset: [4, 0]
+      second_stroke_rel_offset: [0, -5]
+    - period: 3.2 #3
+      hold_times: [0.5, 0., 0, 0.]
+      first_stroke_rel_offset: [5, 0]
+      second_stroke_rel_offset: [0, -5]
+executor_type: point_pairs

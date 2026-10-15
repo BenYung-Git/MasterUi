@@ -1,0 +1,67 @@
+description: |
+  Screw steel (diameter 15mm) on table scan and weld. Use Robot Team. Pin should be outward by 15mm. 217A 21.3V [Megmeet]
+weld_speed: 5
+welding_config:
+  mode: io # Manual set 123A 18V, pulse mode.
+  current: 160.0 # Only effective for 'iv' mode.
+  voltage: 1.0 # X means +X% in unified mode.
+  voltage_mode: unified
+safe_height: 20.0
+tol: 3.0
+angle_a: 80
+ext_offset: -3.0 # minus means go closer.
+actions_offset: [0, 0]
+actions:
+  - [0, 0, 45]
+actions_param:
+  swing_list:
+    - period: 1.3
+      hold_times: [0., 0.1, 0.3, 0.1]
+      first_stroke_rel_offset: [6, 0]
+      second_stroke_rel_offset: [0, 7]
+executor_type: screw_steel_on_table
+auto_cart_move_distance: 167 # mm, will run over 13mm, need 240 in real
+multi_steps_num: 24 # 6 pieces
+
+# Material handling sequence configuration
+fetch_sequence:
+  # Gripper opens first.
+  # Fetch sequence - moves to fetch screw steel from storage
+  fetch_moves:
+    # Raise up via linear move
+    - type: "linear"
+      position: [385.1, -408, 759, 179.7, -0.9, 45.3]  # [x,y,z,rx,ry,rz] in mm/degrees
+      speed: 100 # mm/s
+    # Further up avoid collision
+    - type: "joint"
+      angles: [-15, 4.1, -69, 182, 84, 274]  # Joint angles in degrees
+      speed: 20 # degree/s
+    # Near workpiece side
+    - type: "joint"
+      angles: [-71, -23, 11.6, 179.66, -145.5, 243]  # Joint angles in degrees
+      speed: 20 # degree/s
+    
+    # Drop down to pickup location via linear move
+    - type: "linear"
+      position: [-256.6, 323.5, 867.5, 179.7, -0.1, 45.5]  # [x,y,z,rx,ry,rz] in mm/degrees
+      speed: 100 # mm/s
+    
+  # Place sequence - moves to place screw steel at welding position  
+  place_moves:
+    # Gripper closes first.
+    # Raise up via linear move
+    - type: "linear"
+      position: [-256.6, 323.5, 920, 179.7, -0.1, 45.5]  # [x,y,z,rx,ry,rz] in mm/degrees
+      speed: 100 # mm/s
+    # Toggle to work side
+    - type: "joint"
+      angles: [-33, 19, -54, 181, 107, 282]  # Joint angles in degrees
+      speed: 20 # degree/s
+    # Drop down
+    - type: "linear"
+      position: [385.1, -408, 700, 179.7, -0.9, 45.3]  # [x,y,z,rx,ry,rz] in mm/degrees
+      speed: 100 # mm/s
+    - type: "linear"
+      position: [385.1, -408, 659, 179.7, -0.9, 45.3]  # [x,y,z,rx,ry,rz] in mm/degrees
+      speed: 10 # mm/s
+  

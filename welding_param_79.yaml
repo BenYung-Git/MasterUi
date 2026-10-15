@@ -1,0 +1,33 @@
+description: |
+  Circle-corner square ring. Butt-welding. 10mm thick. Tool11 [Megmeet] 124A 19.4V
+weld_length: 900.0
+safe_height: 30.0
+weld_speed: 2.0
+tol: 1.0
+actions_offset: [-10, 0]
+actions:
+  - [0, 0, 105] #1
+  - [9.0, 10.0, 105] #2
+  - [12.0, 0, 105] #3 
+actions_param:
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.3, 0., 0.1, 0.]
+      first_stroke_rel_offset: [5, 5]
+      second_stroke_rel_offset: [5, 0]
+    - period: 1.0 #2
+      hold_times: [0.2, 0.3]
+      first_stroke_rel_offset: [0, -4]
+      second_stroke_rel_offset: [0, 4]
+    - period: 1.0 #3
+      hold_times: [0.1, 0]
+      first_stroke_rel_offset: [0, -4]
+      second_stroke_rel_offset: [0, 4]
+  piecewise_speed_list:
+    - [2.5, 2.5, 2, 2.5, 2, 2.5, 2, 2.5, 2] #1, note the first number is useless
+    - [3.5, 3.5, 3, 3.5, 3, 3.5, 3, 3.5, 3] #2, note the first number is useless
+    - [4.0, 4, 3.5, 4, 3.5, 4, 3.5, 4, 3.5] #3, note the first number is useless
+executor_type: smooth_square
+executor_param:
+  radius: 42.5
+  curve_adjust: 0.0

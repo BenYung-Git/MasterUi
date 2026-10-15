@@ -1,0 +1,13 @@
+description: |
+  For 2-point welding above top of H workpiece. 242A 23.1V
+weld_length: 900.0
+weld_speed: 7
+safe_height: 80.0
+actions_offset: [0, 0]
+actions:
+  - [0, 0, 0]
+  - [5, 0, 0]
+  - [10, 0, 0]
+  - [5, 6, 0, 2]
+safe_return_coord: [0.0, -50.0, 50.0]
+executor_type: point_pairs

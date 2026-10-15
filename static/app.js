@@ -6,18 +6,26 @@
     groups: { ids: [], items: [], next_id: "group1" },
     tools: { ids: [], items: [], next_id: "tool1" },
     visions: { ids: [], items: [], next_id: "vision1" },
+    weldings: { ids: [], items: [], next_id: "welding_param_1" },
+    weldingStates: { ids: [], items: [], next_id: "welding_state_1" },
     robotOriginalId: "",
     groupOriginalId: "",
     toolOriginalId: "",
     visionOriginalId: "",
+    weldingOriginalId: "",
+    weldingStateOriginalId: "",
     robotBeforeNew: null,
     groupBeforeNew: null,
     toolBeforeNew: null,
     visionBeforeNew: null,
+    weldingBeforeNew: null,
+    weldingStateBeforeNew: null,
     robotIsNew: false,
     groupIsNew: false,
     toolIsNew: false,
     visionIsNew: false,
+    weldingIsNew: false,
+    weldingStateIsNew: false,
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -59,6 +67,8 @@
     syncVisibleButtons("group");
     syncVisibleButtons("tool");
     syncVisibleButtons("vision");
+    syncVisibleButtons("welding");
+    syncVisibleButtons("weldingState");
   }
 
   function fillLangSelect() {
@@ -200,6 +210,22 @@
         copy: "#visionCopy",
         isNew: () => state.visionIsNew,
       },
+      welding: {
+        form: "#weldingForm",
+        card: "#weldingCard",
+        banner: "#weldingDisabledBanner",
+        save: "#weldingSave",
+        copy: "#weldingCopy",
+        isNew: () => state.weldingIsNew,
+      },
+      weldingState: {
+        form: "#weldingStateForm",
+        card: "#weldingStateCard",
+        banner: "#weldingStateDisabledBanner",
+        save: "#weldingStateSave",
+        copy: "#weldingStateCopy",
+        isNew: () => state.weldingStateIsNew,
+      },
     };
     const cfg = map[kind];
     const form = $(cfg.form);
@@ -222,6 +248,8 @@
       group: "#groupForm",
       tool: "#toolForm",
       vision: "#visionForm",
+      welding: "#weldingForm",
+      weldingState: "#weldingStateForm",
     };
     const form = $(forms[kind]);
     if (form.elements.visible.value !== "true") {
@@ -234,10 +262,32 @@
     renderList($("#groupList"), state.groups);
     renderList($("#toolList"), state.tools);
     renderList($("#visionList"), state.visions);
+    renderList($("#weldingList"), state.weldings);
+    renderList($("#weldingStateList"), state.weldingStates);
   }
 
   function selVision() {
     return $("#visionList")?.value || null;
+  }
+
+  function selWelding() {
+    return $("#weldingList")?.value || null;
+  }
+
+  function selWeldingState() {
+    return $("#weldingStateList")?.value || null;
+  }
+
+  function currentSelections(overrides = {}) {
+    return {
+      robot: $("#robotList")?.value || null,
+      group: $("#groupList")?.value || null,
+      tool: $("#toolList")?.value || null,
+      vision: selVision(),
+      welding: selWelding(),
+      weldingState: selWeldingState(),
+      ...overrides,
+    };
   }
 
   function findItem(pack, id) {
@@ -330,12 +380,63 @@
     syncVisibleButtons("vision");
   }
 
+  const WELDING_FIELDS = [
+    "id",
+    "description",
+    "weld_length",
+    "weld_speed",
+    "safe_height",
+    "executor_type",
+    "yaml_rest",
+  ];
+
+  function fillWeldingForm(item) {
+    const form = $("#weldingForm");
+    WELDING_FIELDS.forEach((f) => {
+      const val = item?.[f];
+      form.elements[f].value = val === undefined || val === null ? "" : String(val);
+    });
+    form.elements.original_id.value = item?.id ?? "";
+    form.elements.visible.value = item ? String(!!item.visible) : "true";
+    state.weldingOriginalId = item?.id ?? "";
+    state.weldingIsNew = false;
+    syncVisibleButtons("welding");
+  }
+
+  function summaryOrNA(value) {
+    if (value === undefined || value === null || value === "") return t("summary_na");
+    return String(value);
+  }
+
+  function fillWeldingStateForm(item) {
+    const form = $("#weldingStateForm");
+    const id = item?.id ?? "";
+    form.elements.id.value = id;
+    form.elements.work_id.value = item?.work_id != null ? String(item.work_id) : "";
+    form.elements.filename.value = item?.filename ?? (id ? `${id}.json` : "");
+    form.elements.df_points.value = summaryOrNA(item?.df_points);
+    form.elements.target_rt_count.value = summaryOrNA(item?.target_rt_count);
+    form.elements.safe_return_rt.value = summaryOrNA(item?.safe_return_rt);
+    form.elements.json_text.value = item?.json_text ?? "";
+    form.elements.original_id.value = item?.id ?? "";
+    form.elements.visible.value = item ? String(!!item.visible) : "true";
+    state.weldingStateOriginalId = item?.id ?? "";
+    state.weldingStateIsNew = false;
+    syncVisibleButtons("weldingState");
+  }
+
   function syncVisibleButtons(kind) {
     const map = {
       robot: { form: "#robotForm", text: "#robotVisibleText", btn: "#robotToggleVisible" },
       group: { form: "#groupForm", text: "#groupVisibleText", btn: "#groupToggleVisible" },
       tool: { form: "#toolForm", text: "#toolVisibleText", btn: "#toolToggleVisible" },
       vision: { form: "#visionForm", text: "#visionVisibleText", btn: "#visionToggleVisible" },
+      welding: { form: "#weldingForm", text: "#weldingVisibleText", btn: "#weldingToggleVisible" },
+      weldingState: {
+        form: "#weldingStateForm",
+        text: "#weldingStateVisibleText",
+        btn: "#weldingStateToggleVisible",
+      },
     };
     const cfg = map[kind];
     const form = $(cfg.form);
@@ -351,12 +452,15 @@
     syncEditableState(kind);
   }
 
-  async function reloadAll(selectRobotId, selectGroupId, selectToolId, selectVisionId) {
+  async function reloadAll(selectOverrides = {}) {
+    const select = currentSelections(selectOverrides);
     const settled = await Promise.allSettled([
       api("/api/robots"),
       api("/api/groups"),
       api("/api/tools"),
       api("/api/visions"),
+      api("/api/weldings"),
+      api("/api/welding-states"),
     ]);
     const errors = [];
     if (settled[0].status === "fulfilled") state.robots = settled[0].value;
@@ -367,6 +471,10 @@
     else errors.push(settled[2].reason);
     if (settled[3].status === "fulfilled") state.visions = settled[3].value;
     else errors.push(settled[3].reason);
+    if (settled[4].status === "fulfilled") state.weldings = settled[4].value;
+    else errors.push(settled[4].reason);
+    if (settled[5].status === "fulfilled") state.weldingStates = settled[5].value;
+    else errors.push(settled[5].reason);
 
     renderLists();
 
@@ -374,21 +482,31 @@
     const groups = state.groups;
     const tools = state.tools;
     const visions = state.visions;
+    const weldings = state.weldings;
+    const weldingStates = state.weldingStates;
     const rList = $("#robotList");
     const gList = $("#groupList");
     const tList = $("#toolList");
     const vList = $("#visionList");
-    if (selectRobotId && robots.ids.includes(selectRobotId)) {
-      rList.value = selectRobotId;
+    const wList = $("#weldingList");
+    const wsList = $("#weldingStateList");
+    if (select.robot && robots.ids.includes(select.robot)) {
+      rList.value = select.robot;
     }
-    if (selectGroupId && groups.ids.includes(selectGroupId)) {
-      gList.value = selectGroupId;
+    if (select.group && groups.ids.includes(select.group)) {
+      gList.value = select.group;
     }
-    if (selectToolId && tools.ids.includes(selectToolId)) {
-      tList.value = selectToolId;
+    if (select.tool && tools.ids.includes(select.tool)) {
+      tList.value = select.tool;
     }
-    if (selectVisionId && visions.ids.includes(selectVisionId)) {
-      vList.value = selectVisionId;
+    if (select.vision && visions.ids.includes(select.vision)) {
+      vList.value = select.vision;
+    }
+    if (select.welding && weldings.ids.includes(select.welding)) {
+      wList.value = select.welding;
+    }
+    if (select.weldingState && weldingStates.ids.includes(select.weldingState)) {
+      wsList.value = select.weldingState;
     }
     if (rList.value) fillRobotForm(findItem(robots, rList.value));
     else fillRobotForm(null);
@@ -398,6 +516,10 @@
     else if (tList) fillToolForm(null);
     if (vList && vList.value) fillVisionForm(findItem(visions, vList.value));
     else if (vList) fillVisionForm(null);
+    if (wList && wList.value) fillWeldingForm(findItem(weldings, wList.value));
+    else if (wList) fillWeldingForm(null);
+    if (wsList && wsList.value) fillWeldingStateForm(findItem(weldingStates, wsList.value));
+    else if (wsList) fillWeldingStateForm(null);
 
     if (errors.length) {
       const err = errors[0];
@@ -483,7 +605,7 @@
         : state.robotOriginalId || state.robots.ids[0];
       state.robotIsNew = false;
       state.robotBeforeNew = null;
-      await reloadAll(target, $("#groupList").value || null, $("#toolList").value || null, selVision());
+      await reloadAll({ robot: target });
     });
 
     $("#robotSave").addEventListener("click", async () => {
@@ -496,7 +618,7 @@
           body: JSON.stringify(payload),
         });
         state.robotIsNew = false;
-        await reloadAll(res.item.id, $("#groupList").value || null, $("#toolList").value || null, selVision());
+        await reloadAll({ robot: res.item.id });
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -511,7 +633,7 @@
         const res = await api(`/api/robots/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll(res.id, $("#groupList").value || null, $("#toolList").value || null, selVision());
+        await reloadAll({ robot: res.id });
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -530,7 +652,7 @@
         const res = await api(`/api/robots/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
-        await reloadAll(res.item.id, $("#groupList").value || null, $("#toolList").value || null, selVision());
+        await reloadAll({ robot: res.item.id });
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -564,7 +686,7 @@
         : state.groupOriginalId || state.groups.ids[0];
       state.groupIsNew = false;
       state.groupBeforeNew = null;
-      await reloadAll($("#robotList").value || null, target, $("#toolList").value || null, selVision());
+      await reloadAll({ group: target });
     });
 
     $("#groupSave").addEventListener("click", async () => {
@@ -584,7 +706,7 @@
           body: JSON.stringify(payload),
         });
         state.groupIsNew = false;
-        await reloadAll($("#robotList").value || null, res.item.id, $("#toolList").value || null, selVision());
+        await reloadAll({ group: res.item.id });
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -599,7 +721,7 @@
         const res = await api(`/api/groups/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll($("#robotList").value || null, res.id, $("#toolList").value || null, selVision());
+        await reloadAll({ group: res.id });
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -618,7 +740,7 @@
         const res = await api(`/api/groups/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
-        await reloadAll($("#robotList").value || null, res.item.id, $("#toolList").value || null, selVision());
+        await reloadAll({ group: res.item.id });
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -650,7 +772,7 @@
         : state.toolOriginalId || state.tools.ids[0];
       state.toolIsNew = false;
       state.toolBeforeNew = null;
-      await reloadAll($("#robotList").value || null, $("#groupList").value || null, target, selVision());
+      await reloadAll({ tool: target });
     });
 
     $("#toolSave").addEventListener("click", async () => {
@@ -665,7 +787,7 @@
           body: JSON.stringify(payload),
         });
         state.toolIsNew = false;
-        await reloadAll($("#robotList").value || null, $("#groupList").value || null, res.item.id, selVision());
+        await reloadAll({ tool: res.item.id });
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -680,7 +802,7 @@
         const res = await api(`/api/tools/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll($("#robotList").value || null, $("#groupList").value || null, res.id, selVision());
+        await reloadAll({ tool: res.id });
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -699,7 +821,7 @@
         const res = await api(`/api/tools/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
-        await reloadAll($("#robotList").value || null, $("#groupList").value || null, res.item.id, selVision());
+        await reloadAll({ tool: res.item.id });
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -732,12 +854,7 @@
         : state.visionOriginalId || state.visions.ids[0];
       state.visionIsNew = false;
       state.visionBeforeNew = null;
-      await reloadAll(
-        $("#robotList").value || null,
-        $("#groupList").value || null,
-        $("#toolList").value || null,
-        target
-      );
+      await reloadAll({ vision: target });
     });
 
     $("#visionSave").addEventListener("click", async () => {
@@ -759,12 +876,7 @@
           body: JSON.stringify(payload),
         });
         state.visionIsNew = false;
-        await reloadAll(
-          $("#robotList").value || null,
-          $("#groupList").value || null,
-          $("#toolList").value || null,
-          res.item.id
-        );
+        await reloadAll({ vision: res.item.id });
         toast(t("msg_saved"));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -779,12 +891,7 @@
         const res = await api(`/api/visions/${encodeURIComponent(id)}/copy`, {
           method: "POST",
         });
-        await reloadAll(
-          $("#robotList").value || null,
-          $("#groupList").value || null,
-          $("#toolList").value || null,
-          res.id
-        );
+        await reloadAll({ vision: res.id });
         toast(t("msg_copied").replace("{id}", res.id));
       } catch (err) {
         toast(String(err.message || err), true);
@@ -803,15 +910,250 @@
         const res = await api(`/api/visions/${encodeURIComponent(id)}/${path}`, {
           method: "POST",
         });
-        await reloadAll(
-          $("#robotList").value || null,
-          $("#groupList").value || null,
-          $("#toolList").value || null,
-          res.item.id
-        );
+        await reloadAll({ vision: res.item.id });
         toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
       } catch (err) {
         toast(String(err.message || err), true);
+      }
+    });
+  }
+
+  function formToWeldingPayload(form) {
+    return {
+      id: form.elements.id.value.trim(),
+      original_id: form.elements.original_id.value || null,
+      description: form.elements.description.value,
+      weld_length: form.elements.weld_length.value,
+      weld_speed: form.elements.weld_speed.value,
+      safe_height: form.elements.safe_height.value,
+      executor_type: form.elements.executor_type.value,
+      yaml_rest: form.elements.yaml_rest.value,
+      visible: form.elements.visible.value === "true",
+    };
+  }
+
+  function validateWeldingNumbers(form) {
+    for (const name of ["weld_length", "weld_speed", "safe_height"]) {
+      const el = form.elements[name];
+      if (!el) continue;
+      const s = String(el.value ?? "").trim();
+      if (s === "") continue;
+      if (!NUM_FULL_RE.test(s) || !Number.isFinite(Number(s))) {
+        throw new Error(t("msg_number_only"));
+      }
+    }
+  }
+
+  function bindWeldingActions() {
+    $("#weldingList").addEventListener("change", () => {
+      const item = findItem(state.weldings, $("#weldingList").value);
+      fillWeldingForm(item);
+    });
+
+    $("#weldingNew").addEventListener("click", () => {
+      state.weldingBeforeNew = state.weldingOriginalId || state.weldings.ids[0] || null;
+      state.weldingIsNew = true;
+      $("#weldingList").selectedIndex = -1;
+      fillWeldingForm({
+        id: state.weldings.next_id,
+        visible: true,
+        description: "",
+        weld_length: 900.0,
+        weld_speed: 1.5,
+        safe_height: 30.0,
+        executor_type: "point_pairs",
+        yaml_rest: "actions_offset: [0, 0]\nactions: []\n",
+      });
+      state.weldingIsNew = true;
+      $("#weldingForm").elements.original_id.value = "";
+    });
+
+    $("#weldingCancel").addEventListener("click", async () => {
+      const target = state.weldingIsNew
+        ? state.weldingBeforeNew
+        : state.weldingOriginalId || state.weldings.ids[0];
+      state.weldingIsNew = false;
+      state.weldingBeforeNew = null;
+      await reloadAll({ welding: target });
+    });
+
+    $("#weldingSave").addEventListener("click", async () => {
+      try {
+        assertEditable("welding");
+        const form = $("#weldingForm");
+        validateWeldingNumbers(form);
+        const payload = formToWeldingPayload(form);
+        if (!payload.id) throw new Error(t("msg_id_required"));
+        const res = await api("/api/weldings", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        state.weldingIsNew = false;
+        await reloadAll({ welding: res.item.id });
+        toast(t("msg_saved"));
+      } catch (err) {
+        const msg = String(err.message || err);
+        toast(/yaml|mapping|scanner|parser/i.test(msg) ? t("msg_invalid_yaml") + " " + msg : msg, true);
+      }
+    });
+
+    $("#weldingCopy").addEventListener("click", async () => {
+      const id = state.weldingOriginalId || $("#weldingList").value;
+      if (!id) return toast(t("msg_select_first"), true);
+      try {
+        assertEditable("welding");
+        const res = await api(`/api/weldings/${encodeURIComponent(id)}/copy`, {
+          method: "POST",
+        });
+        await reloadAll({ welding: res.id });
+        toast(t("msg_copied").replace("{id}", res.id));
+      } catch (err) {
+        toast(String(err.message || err), true);
+      }
+    });
+
+    $("#weldingToggleVisible").addEventListener("click", async () => {
+      const id = state.weldingOriginalId || $("#weldingList").value;
+      if (!id || state.weldingIsNew) return toast(t("msg_select_first"), true);
+      const mode = $("#weldingToggleVisible").dataset.mode;
+      if (mode === "disable") {
+        if (!confirm(t("msg_confirm_soft_delete").replace("{id}", id))) return;
+      }
+      try {
+        const path = mode === "disable" ? "disable" : "enable";
+        const res = await api(`/api/weldings/${encodeURIComponent(id)}/${path}`, {
+          method: "POST",
+        });
+        await reloadAll({ welding: res.item.id });
+        toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
+      } catch (err) {
+        toast(String(err.message || err), true);
+      }
+    });
+  }
+
+  function mapWeldingStateError(msg) {
+    const text = String(msg || "");
+    if (/Invalid JSON/i.test(text)) return t("msg_invalid_json");
+    if (/df_dict.*length/i.test(text) || /length mismatch/i.test(text)) return t("msg_df_dict_length");
+    if (/target_rt_rev_list/i.test(text)) return t("msg_target_rt_shape");
+    if (/safe_return_rt/i.test(text)) return t("msg_safe_return_rt_shape");
+    if (/ID required/i.test(text)) return t("msg_id_required");
+    if (/ID exists/i.test(text)) return t("msg_id_exists");
+    if (/welding_state_<number>/i.test(text)) return t("hint_welding_state_id");
+    return text;
+  }
+
+  function defaultWeldingStateJson() {
+    return `${JSON.stringify(
+      {
+        df_dict: { x: [], y: [], z: [], type: [], rev_idx: [] },
+        target_rt_rev_list: [],
+        safe_return_rt: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+      },
+      null,
+      4
+    )}\n`;
+  }
+
+  function bindWeldingStateActions() {
+    const idInput = $("#weldingStateForm").elements.id;
+    idInput.addEventListener("input", () => {
+      const id = idInput.value.trim();
+      const m = /^welding_state_(\d+)$/.exec(id);
+      $("#weldingStateForm").elements.work_id.value = m ? m[1] : "";
+      $("#weldingStateForm").elements.filename.value = id ? `${id}.json` : "";
+    });
+
+    $("#weldingStateList").addEventListener("change", () => {
+      const item = findItem(state.weldingStates, $("#weldingStateList").value);
+      fillWeldingStateForm(item);
+    });
+
+    $("#weldingStateNew").addEventListener("click", () => {
+      state.weldingStateBeforeNew =
+        state.weldingStateOriginalId || state.weldingStates.ids[0] || null;
+      state.weldingStateIsNew = true;
+      $("#weldingStateList").selectedIndex = -1;
+      const nextId = state.weldingStates.next_id;
+      const m = /^welding_state_(\d+)$/.exec(nextId);
+      fillWeldingStateForm({
+        id: nextId,
+        work_id: m ? Number(m[1]) : "",
+        filename: `${nextId}.json`,
+        visible: true,
+        df_points: 0,
+        target_rt_count: 0,
+        safe_return_rt: "[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]",
+        json_text: defaultWeldingStateJson(),
+      });
+      state.weldingStateIsNew = true;
+      $("#weldingStateForm").elements.original_id.value = "";
+    });
+
+    $("#weldingStateCancel").addEventListener("click", async () => {
+      const target = state.weldingStateIsNew
+        ? state.weldingStateBeforeNew
+        : state.weldingStateOriginalId || state.weldingStates.ids[0];
+      state.weldingStateIsNew = false;
+      state.weldingStateBeforeNew = null;
+      await reloadAll({ weldingState: target });
+    });
+
+    $("#weldingStateSave").addEventListener("click", async () => {
+      try {
+        assertEditable("weldingState");
+        const form = $("#weldingStateForm");
+        const payload = {
+          id: form.elements.id.value.trim(),
+          original_id: form.elements.original_id.value || null,
+          json_text: form.elements.json_text.value,
+          visible: form.elements.visible.value === "true",
+        };
+        if (!payload.id) throw new Error(t("msg_id_required"));
+        const res = await api("/api/welding-states", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        state.weldingStateIsNew = false;
+        await reloadAll({ weldingState: res.item.id });
+        toast(t("msg_saved"));
+      } catch (err) {
+        toast(mapWeldingStateError(err.message || err), true);
+      }
+    });
+
+    $("#weldingStateCopy").addEventListener("click", async () => {
+      const id = state.weldingStateOriginalId || $("#weldingStateList").value;
+      if (!id) return toast(t("msg_select_first"), true);
+      try {
+        assertEditable("weldingState");
+        const res = await api(`/api/welding-states/${encodeURIComponent(id)}/copy`, {
+          method: "POST",
+        });
+        await reloadAll({ weldingState: res.id });
+        toast(t("msg_copied").replace("{id}", res.id));
+      } catch (err) {
+        toast(mapWeldingStateError(err.message || err), true);
+      }
+    });
+
+    $("#weldingStateToggleVisible").addEventListener("click", async () => {
+      const id = state.weldingStateOriginalId || $("#weldingStateList").value;
+      if (!id || state.weldingStateIsNew) return toast(t("msg_select_first"), true);
+      const mode = $("#weldingStateToggleVisible").dataset.mode;
+      if (mode === "disable") {
+        if (!confirm(t("msg_confirm_soft_delete").replace("{id}", id))) return;
+      }
+      try {
+        const path = mode === "disable" ? "disable" : "enable";
+        const res = await api(`/api/welding-states/${encodeURIComponent(id)}/${path}`, {
+          method: "POST",
+        });
+        await reloadAll({ weldingState: res.item.id });
+        toast(mode === "disable" ? t("msg_soft_deleted") : t("msg_restored"));
+      } catch (err) {
+        toast(mapWeldingStateError(err.message || err), true);
       }
     });
   }
@@ -832,7 +1174,9 @@
     bindGroupActions();
     bindToolActions();
     bindVisionActions();
-    await reloadAll(null, null, null, null);
+    bindWeldingActions();
+    bindWeldingStateActions();
+    await reloadAll();
   }
 
   boot().catch((err) => toast(String(err.message || err), true));

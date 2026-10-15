@@ -1,0 +1,91 @@
+description: Rectangle Workpiece over a H-shape (weld top), extension 13mm, 128A 18.3V
+weld_length: 90.0
+safe_height: 130.0
+safe_rotation_around_y_to_adjust_side: 45
+safe_rotation_around_x_to_adjust_side: -30
+weld_speed: 1.5
+tol: 20.0
+is_rectangle: True
+#auto_toggle_side: True
+#welding_angle_wrt_y: -20.0
+middle_actions_offset: [0, 0]
+middle_actions:
+  - [0.0, 0.0, -45, 1.5] #1, 128A 18.3V
+  - [0, -3.5, -45, 1.4] #2, 128A 18.3V
+  - [4.0, 0.0, -45, 1.4] #3, 128A 18.3V
+middle_actions_param:
+  #break_points: [[80, 100], [200, 220]]
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [3, 0]
+      second_stroke_rel_offset: [0, -5]
+    - period: 2.5 #2
+      hold_times: [0.01, 0.01]
+      first_stroke_rel_offset: [4, 0]
+      second_stroke_rel_offset: [0, -4]
+    - period: 3.0 #3
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [5, 0]
+      second_stroke_rel_offset: [0, -5]
+left_actions_offset: [0, 0]
+left_actions:
+  - [0.0, 0.0, -45, 1.5] #1, 128A 18.3V
+  - [0, -3.5, -45, 1.4] #2, 128A 18.3V
+  - [4.0, 0.0, -45, 1.4] #3, 128A 18.3V 
+left_actions_param:
+  #break_points: [[80, 100], [200, 220]]
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [3, 0]
+      second_stroke_rel_offset: [0, -5]
+    - period: 2.5 #2
+      hold_times: [0.01, 0.01]
+      first_stroke_rel_offset: [4, 0]
+      second_stroke_rel_offset: [0, -4]
+    - period: 3.0 #3
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [5, 0]
+      second_stroke_rel_offset: [0, -5]
+right_actions_offset: [0, 0]
+right_actions:
+  - [0.0, 0.0, -45, 1.5] #1, 128A 18.3V
+  - [0, -3.5, -45, 1.4] #2, 128A 18.3V
+  - [4.0, 0.0, -45, 1.4] #3, 128A 18.3V 
+right_actions_param:
+  break_points: [[100, 120], [220, 240]]
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [3, 0]
+      second_stroke_rel_offset: [0, -5]
+    - period: 2.5 #2
+      hold_times: [0.01, 0.01]
+      first_stroke_rel_offset: [4, 0]
+      second_stroke_rel_offset: [0, -4]
+    - period: 3.0 #3
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [5, 0]
+      second_stroke_rel_offset: [0, -5] 
+opposite_actions_offset: [0, 0]
+opposite_actions:
+  - [0.0, 0.0, -45, 1.5] #1, 128A 18.3V
+  - [0, -3.5, -45, 1.4] #2, 128A 18.3V
+  - [4.0, 0.0, -45, 1.4] #3, 128A 18.3V  
+opposite_actions_param:
+  #break_points: [[80, 100], [200, 220]]
+  swing_list:
+    - period: 2.5 #1
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [3, 0]
+      second_stroke_rel_offset: [0, -5]
+    - period: 2.5 #2
+      hold_times: [0.01, 0.01]
+      first_stroke_rel_offset: [4, 0]
+      second_stroke_rel_offset: [0, -4]
+    - period: 3.0 #3
+      hold_times: [0.3, 0., 0, 0.]
+      first_stroke_rel_offset: [5, 0]
+      second_stroke_rel_offset: [0, -5]
+executor_type: h_top
